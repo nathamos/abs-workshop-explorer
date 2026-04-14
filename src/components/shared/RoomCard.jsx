@@ -1,6 +1,6 @@
 import Tag from './Tag'
 
-export default function RoomCard({ room, selected, onSelect, matchCount, totalFilters, bestMatch, showDetails, onToggleDetails, matchedAttributes }) {
+export default function RoomCard({ room, selected, onSelect, matchCount, totalFilters, bestMatch, showDetails, onToggleDetails, matchedAttributes, altPrice }) {
   return (
     <div
       className="rounded-2xl overflow-hidden transition-all"
@@ -53,8 +53,11 @@ export default function RoomCard({ room, selected, onSelect, matchCount, totalFi
                 <Tag variant="badge">{room.badge}</Tag>
               ) : null}
               <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                from SGD {room.basePricePerNight}
-                <span style={{ color: 'var(--color-text-tertiary)' }}>/night</span>
+                {altPrice ? (
+                  <>from <span style={{ fontWeight: 600 }}>{altPrice}</span><span style={{ color: 'var(--color-text-tertiary)' }}>/night</span></>
+                ) : (
+                  <>from SGD {room.basePricePerNight}<span style={{ color: 'var(--color-text-tertiary)' }}>/night</span></>
+                )}
               </p>
             </div>
           </div>
@@ -96,15 +99,32 @@ export default function RoomCard({ room, selected, onSelect, matchCount, totalFi
             )}
             <button
               onClick={onSelect}
-              className="ml-auto text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
-              style={{
-                border: selected
-                  ? '1px solid var(--color-teal)'
-                  : '1px solid var(--color-border)',
-                color: selected ? 'var(--color-teal)' : 'var(--color-text-primary)',
-                background: 'transparent',
-                borderRadius: 'var(--radius-md)',
-              }}
+              className="ml-auto text-sm font-medium transition-colors"
+              style={
+                selected
+                  ? {
+                      border: '1px solid var(--color-teal)',
+                      color: 'var(--color-teal)',
+                      background: 'transparent',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '6px 16px',
+                    }
+                  : bestMatch
+                  ? {
+                      border: 'none',
+                      color: 'white',
+                      background: 'var(--color-teal)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '8px 18px',
+                    }
+                  : {
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                      background: 'transparent',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '6px 16px',
+                    }
+              }
             >
               {selected ? 'Selected' : 'Select →'}
             </button>

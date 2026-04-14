@@ -10,11 +10,15 @@ const NIGHTS = 3
 const sectionGroups = [
   {
     label: 'YOUR BED',
-    ids: ['bedding'],
+    ids: ['bedding', 'pillows'],
   },
   {
     label: 'YOUR ROOM',
-    ids: ['roomCategory', 'floor', 'view', 'balcony', 'bathroom', 'kitchen'],
+    ids: ['roomCategory', 'floor', 'view', 'balcony', 'bathroom'],
+  },
+  {
+    label: 'YOUR LIVING SPACE',
+    ids: ['livingArea', 'miniBar', 'coffeeMachine', 'kitchen'],
   },
   {
     label: 'YOUR STAY',

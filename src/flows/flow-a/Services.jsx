@@ -39,21 +39,13 @@ export default function Services() {
 
   const summaryServices = checkedItems
     .filter((i) => i.tag !== 'included')
-    .map((i) => ({
-      id: i.id,
-      name: i.name,
-      price: i.defaultIncluded ? -i.price : i.price,
-    }))
+    .map((i) => ({ id: i.id, name: i.name, price: i.price }))
 
   const addOnTotal = allItems
-    .filter((i) => !i.defaultIncluded && i.tag !== 'included' && selectedServices.includes(i.id))
+    .filter((i) => i.tag !== 'included' && selectedServices.includes(i.id))
     .reduce((sum, i) => sum + i.price, 0)
 
-  const removedDefaultsCredit = allItems
-    .filter((i) => i.defaultIncluded && i.tag !== 'included' && !selectedServices.includes(i.id))
-    .reduce((sum, i) => sum + i.price, 0)
-
-  const total = roomTotal + addOnTotal - removedDefaultsCredit
+  const total = roomTotal + addOnTotal
 
   return (
     <div style={{ paddingBottom: '120px' }}>
@@ -61,7 +53,7 @@ export default function Services() {
         step={2}
         totalSteps={3}
         title="Customise your stay"
-        subtitle="Add services or remove defaults for a credit. Prices are per stay."
+        subtitle="Add services to your stay. Prices are per stay."
       />
 
       <ContextStrip

@@ -6,27 +6,32 @@ import StepHeader from '../../components/shared/StepHeader'
 import AttributePill from '../../components/shared/AttributePill'
 
 const BED_OPTIONS = [
-  { value: 'queen', label: 'Queen bed' },
-  { value: 'king', label: 'King bed' },
-  { value: 'twin', label: 'Twin beds' },
+  { value: 'king',   label: 'King bed',   emoji: '🛏️' },
+  { value: 'queen',  label: 'Queen bed',  emoji: '🛏️' },
+  { value: 'twin',   label: 'Twin beds',  emoji: '👫' },
+  { value: 'double', label: 'Double bed', emoji: '🛏️' },
+  { value: 'sofa',   label: 'Sofa bed',   emoji: '🛋️' },
 ]
 
 const VIEW_OPTIONS = [
-  { value: 'city', label: 'City view' },
-  { value: 'marina', label: 'Marina view' },
-  { value: 'courtyard', label: 'Courtyard' },
+  { value: 'city',      label: 'City view',   emoji: '🏙️' },
+  { value: 'marina',    label: 'Marina view', emoji: '🌊' },
+  { value: 'courtyard', label: 'Courtyard',   emoji: '🌿' },
 ]
 
 const FLOOR_OPTIONS = [
-  { value: 'low', label: 'Low floor' },
-  { value: 'mid', label: 'Mid floor' },
-  { value: 'high', label: 'High floor' },
+  { value: 'low',  label: 'Low floor',  emoji: '🌱' },
+  { value: 'mid',  label: 'Mid floor',  emoji: '🏙️' },
+  { value: 'high', label: 'High floor', emoji: '☁️' },
 ]
 
 const EXTRA_OPTIONS = [
-  { value: 'balcony', label: 'Balcony' },
-  { value: 'bathtub', label: 'Bathtub' },
-  { value: 'kitchenette', label: 'Kitchenette' },
+  { value: 'balcony',     label: 'Balcony',          emoji: '🌅' },
+  { value: 'bathtub',     label: 'Bathtub',           emoji: '🛁' },
+  { value: 'walk-in',     label: 'Walk-in shower',    emoji: '💦' },
+  { value: 'livingArea',  label: 'Separate lounge',   emoji: '🛋️' },
+  { value: 'coffeeMachine', label: 'Nespresso',       emoji: '☕' },
+  { value: 'kitchenette', label: 'Kitchenette',       emoji: '🍳' },
 ]
 
 function initLocalAttrs(room) {
@@ -300,6 +305,7 @@ export default function Rooms() {
                             <AttributePill
                               key={opt.value}
                               label={opt.label}
+                              emoji={opt.emoji}
                               selected={localAttrs[room.id].bedding === opt.value}
                               onClick={() => setAttr(room.id, 'bedding', opt.value)}
                             />
@@ -324,6 +330,7 @@ export default function Rooms() {
                             <AttributePill
                               key={opt.value}
                               label={opt.label}
+                              emoji={opt.emoji}
                               selected={localAttrs[room.id].view === opt.value}
                               onClick={() => setAttr(room.id, 'view', opt.value)}
                             />
@@ -348,6 +355,7 @@ export default function Rooms() {
                             <AttributePill
                               key={opt.value}
                               label={opt.label}
+                              emoji={opt.emoji}
                               selected={localAttrs[room.id].floor === opt.value}
                               onClick={() => setAttr(room.id, 'floor', opt.value)}
                             />
@@ -372,6 +380,7 @@ export default function Rooms() {
                             <AttributePill
                               key={opt.value}
                               label={opt.label}
+                              emoji={opt.emoji}
                               selected={localAttrs[room.id].extras[opt.value]}
                               onClick={() => toggleExtra(room.id, opt.value)}
                             />

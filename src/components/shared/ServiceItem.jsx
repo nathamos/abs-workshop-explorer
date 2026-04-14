@@ -2,7 +2,6 @@ import Tag from './Tag'
 
 export default function ServiceItem({ item, checked, onChange }) {
   const isLocked = item.tag === 'included'
-  const isDefault = item.tag === 'default'
 
   return (
     <div
@@ -47,9 +46,9 @@ export default function ServiceItem({ item, checked, onChange }) {
         <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--color-text-secondary)' }}>
           {item.description}
         </p>
-        {item.tag && item.tag !== 'included' && (
+        {item.tag === 'popular' && (
           <div className="mt-1">
-            <Tag variant={item.tag}>{item.tag === 'default' ? 'Default included' : 'Popular'}</Tag>
+            <Tag variant="popular">Popular</Tag>
           </div>
         )}
         {isLocked && (
@@ -64,14 +63,10 @@ export default function ServiceItem({ item, checked, onChange }) {
         <p
           className="text-sm font-semibold"
           style={{
-            color: isLocked
-              ? 'var(--color-text-tertiary)'
-              : isDefault
-              ? 'var(--color-positive)'
-              : 'var(--color-addprice)',
+            color: isLocked ? 'var(--color-text-tertiary)' : 'var(--color-addprice)',
           }}
         >
-          {item.priceLabel}
+          {isLocked || item.price === 0 ? 'Included' : `+SGD ${item.price}`}
         </p>
       </div>
     </div>
