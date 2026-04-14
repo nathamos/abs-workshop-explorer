@@ -9,24 +9,20 @@ const NIGHTS = 3
 
 const sectionGroups = [
   {
+    label: 'YOUR ROOM',
+    ids: ['floor', 'view', 'balcony'],
+  },
+  {
     label: 'YOUR BED',
     ids: ['bedding', 'pillows'],
   },
   {
-    label: 'YOUR ROOM',
-    ids: ['roomCategory', 'floor', 'view', 'balcony', 'bathroom'],
-  },
-  {
-    label: 'YOUR LIVING SPACE',
-    ids: ['livingArea', 'miniBar', 'coffeeMachine', 'kitchen'],
-  },
-  {
-    label: 'YOUR STAY',
-    ids: ['occupancy', 'facilityAccess', 'laundry'],
+    label: 'YOUR BATHROOM & LIVING SPACE',
+    ids: ['bathroom', 'livingArea', 'miniBar', 'coffeeMachine', 'kitchen'],
   },
   {
     label: 'ROOM REQUIREMENTS',
-    ids: ['smoking', 'accessibility'],
+    ids: ['smoking'],
   },
 ]
 
@@ -62,19 +58,6 @@ function getActiveConflict(selectedAttributes) {
   return null
 }
 
-function calcRoomBase(matchedRoom, selectedAttributes) {
-  const base = matchedRoom.basePricePerNight * NIGHTS
-  let deltas = 0
-  for (const attr of attributes) {
-    const selectedVal = selectedAttributes[attr.id]
-    if (selectedVal === undefined) continue
-    const opt = attr.options.find((o) => o.value === selectedVal)
-    if (opt && opt.priceDelta && opt.priceDelta > 0) {
-      deltas += opt.priceDelta
-    }
-  }
-  return base + deltas * NIGHTS
-}
 
 export default function Rooms() {
   const { selectedAttributes, setSelectedAttributes, setSelectedRoom, priced } = useOutletContext()
@@ -82,7 +65,7 @@ export default function Rooms() {
 
   const matchedRoom = useMemo(() => getMatchedRoom(selectedAttributes), [selectedAttributes])
   const activeConflict = useMemo(() => getActiveConflict(selectedAttributes), [selectedAttributes])
-  const roomBase = useMemo(() => calcRoomBase(matchedRoom, selectedAttributes), [matchedRoom, selectedAttributes])
+  const roomTotal = matchedRoom.basePricePerNight * NIGHTS
 
   function handlePillClick(attrId, value) {
     setSelectedAttributes((prev) => ({ ...prev, [attrId]: value }))
@@ -106,22 +89,6 @@ export default function Rooms() {
     return pills
   }, [selectedAttributes])
 
-  // Collect priced line items
-  const pricedLines = useMemo(() => {
-    if (!priced) return []
-    const lines = []
-    for (const attr of attributes) {
-      const val = selectedAttributes[attr.id]
-      if (val === undefined) continue
-      const opt = attr.options.find((o) => o.value === val)
-      if (opt && opt.priceDelta && opt.priceDelta > 0) {
-        lines.push({ label: opt.label, delta: opt.priceDelta * NIGHTS })
-      }
-    }
-    return lines
-  }, [selectedAttributes, priced])
-
-  const baseRateTotal = matchedRoom.basePricePerNight * NIGHTS
 
   return (
     <div className="max-w-[1000px] mx-auto">
@@ -188,6 +155,52 @@ export default function Rooms() {
                 </div>
               </div>
             ))}
+
+            {/* Accessibility toggle */}
+            <div>
+              <p
+                className="mb-4"
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--color-text-tertiary)',
+                  letterSpacing: '0.12em',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                }}
+              >
+                ACCESSIBILITY
+              </p>
+              <button
+                onClick={() =>
+                  setSelectedAttributes((prev) => ({ ...prev, accessibility: !prev.accessibility }))
+                }
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '9px 18px',
+                  borderRadius: 'var(--radius-full)',
+                  border: selectedAttributes.accessibility
+                    ? 'none'
+                    : '1.5px solid var(--color-border)',
+                  background: selectedAttributes.accessibility
+                    ? 'var(--color-teal)'
+                    : 'var(--color-surface)',
+                  color: selectedAttributes.accessibility
+                    ? 'white'
+                    : 'var(--color-text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                ♿{' '}
+                {selectedAttributes.accessibility
+                  ? 'Accessibility features needed'
+                  : 'No accessibility requirements'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -273,51 +286,21 @@ export default function Rooms() {
               </div>
             )}
 
-            {/* Priced: itemised breakdown */}
+            {/* Priced: simple room total */}
             {priced && (
               <div className="mt-4">
-                <div
-                  className="flex justify-between text-sm"
-                  style={{ marginBottom: '8px' }}
-                >
-                  <span style={{ color: 'var(--color-text-secondary)' }}>
-                    Base rate ({NIGHTS} nights)
-                  </span>
-                  <span style={{ color: 'var(--color-text-primary)' }}>SGD {baseRateTotal}</span>
-                </div>
-
-                {pricedLines.length > 0 && (
-                  <>
-                    <div
-                      style={{
-                        height: '1px',
-                        background: 'var(--color-border)',
-                        marginBottom: '8px',
-                      }}
-                    />
-                    {pricedLines.map((line, i) => (
-                      <div
-                        key={i}
-                        className="flex justify-between text-sm"
-                        style={{ marginBottom: '6px' }}
-                      >
-                        <span style={{ color: 'var(--color-text-secondary)' }}>{line.label}</span>
-                        <span style={{ color: 'var(--color-addprice)' }}>+SGD {line.delta}</span>
-                      </div>
-                    ))}
-                  </>
-                )}
-
                 <div
                   style={{
                     height: '1px',
                     background: 'var(--color-border)',
-                    margin: '10px 0',
+                    margin: '4px 0 10px',
                   }}
                 />
                 <div className="flex justify-between text-sm font-semibold">
-                  <span style={{ color: 'var(--color-text-primary)' }}>Room total</span>
-                  <span style={{ color: 'var(--color-text-primary)' }}>SGD {roomBase}</span>
+                  <span style={{ color: 'var(--color-text-primary)' }}>
+                    Room total ({NIGHTS} nights)
+                  </span>
+                  <span style={{ color: 'var(--color-text-primary)' }}>SGD {roomTotal}</span>
                 </div>
               </div>
             )}

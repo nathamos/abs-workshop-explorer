@@ -11,7 +11,6 @@ export default function FlowBIndex({ priced = false }) {
   const [selectedAttributes, setSelectedAttributes] = useState({
     bedding: 'king',
     pillows: 'standard',
-    roomCategory: 'standard',
     floor: 'low',
     view: 'courtyard',
     balcony: false,
@@ -20,9 +19,6 @@ export default function FlowBIndex({ priced = false }) {
     miniBar: 'none',
     coffeeMachine: false,
     kitchen: false,
-    occupancy: 2,
-    facilityAccess: 'room-only',
-    laundry: false,
     smoking: false,
     accessibility: false,
   })
