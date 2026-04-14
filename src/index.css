@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg:             #F5F3EE;
+  --color-surface:        #FFFFFF;
+  --color-surface-alt:    #F0EDE7;
+  --color-text-primary:   #1A1A1A;
+  --color-text-secondary: #6B6560;
+  --color-text-tertiary:  #9E9890;
+  --color-teal:           #2D7D6F;
+  --color-teal-light:     #E8F4F1;
+  --color-teal-border:    #2D7D6F;
+  --color-positive:       #2D7D6F;
+  --color-addprice:       #1A1A1A;
+  --color-amber:          #D97706;
+  --color-amber-bg:       #FEF3C7;
+  --color-green-tag:      #2D7D6F;
+  --color-green-tag-bg:   #E8F4F1;
+  --color-border:         #E5E1D8;
+  --color-border-focus:   #2D7D6F;
+  --color-danger:         #DC2626;
+  --color-danger-light:   #FEF2F2;
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
