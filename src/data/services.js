@@ -24,6 +24,7 @@ export const serviceCategories = [
         priceLabel: '+SGD 50',
         tag: 'popular',
         defaultIncluded: false,
+        quantifiable: true,
       },
       {
         id: 'breakfast-in-bed',
@@ -34,6 +35,7 @@ export const serviceCategories = [
         priceLabel: '+SGD 22',
         tag: null,
         defaultIncluded: false,
+        quantifiable: true,
       },
     ],
   },
@@ -100,6 +102,7 @@ export const serviceCategories = [
         priceLabel: '+SGD 75',
         tag: null,
         defaultIncluded: false,
+        quantifiable: true,
       },
       {
         id: 'gym-access',
@@ -138,6 +141,7 @@ export const serviceCategories = [
         priceLabel: '+SGD 45',
         tag: null,
         defaultIncluded: false,
+        quantifiable: true,
       },
       {
         id: 'occasion-setup',
@@ -166,6 +170,7 @@ export const serviceCategories = [
         priceLabel: '+SGD 30',
         tag: null,
         defaultIncluded: false,
+        quantifiable: true,
       },
       {
         id: 'cultural-tour',
@@ -280,6 +285,7 @@ export const serviceCategories = [
         priceLabel: '+SGD 55',
         tag: null,
         defaultIncluded: false,
+        quantifiable: true,
       },
       {
         id: 'butler',

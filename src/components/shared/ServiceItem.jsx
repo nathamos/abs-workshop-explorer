@@ -1,7 +1,8 @@
 import Tag from './Tag'
 
-export default function ServiceItem({ item, checked, onChange }) {
+export default function ServiceItem({ item, checked, onChange, quantity = 1, onQuantityChange }) {
   const isLocked = item.tag === 'included'
+  const showQty = checked && item.quantifiable && !isLocked
 
   return (
     <div
@@ -58,16 +59,69 @@ export default function ServiceItem({ item, checked, onChange }) {
         )}
       </div>
 
-      {/* Price */}
+      {/* Price + optional qty control */}
       <div className="flex-shrink-0 text-right">
         <p
           className="text-sm font-semibold"
-          style={{
-            color: isLocked ? 'var(--color-text-tertiary)' : 'var(--color-addprice)',
-          }}
+          style={{ color: isLocked ? 'var(--color-text-tertiary)' : 'var(--color-addprice)' }}
         >
-          {isLocked || item.price === 0 ? 'Included' : `+SGD ${item.price}`}
+          {isLocked || item.price === 0
+            ? 'Included'
+            : showQty && quantity > 1
+            ? `+SGD ${item.price * quantity}`
+            : `+SGD ${item.price}`}
         </p>
+        {showQty && (
+          <div className="flex items-center justify-end gap-1 mt-1.5">
+            <button
+              onClick={() => onQuantityChange(-1)}
+              disabled={quantity <= 1}
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid var(--color-border)',
+                background: quantity <= 1 ? 'var(--color-surface-alt)' : 'var(--color-surface)',
+                color: quantity <= 1 ? 'var(--color-text-tertiary)' : 'var(--color-text-primary)',
+                cursor: quantity <= 1 ? 'default' : 'pointer',
+                fontSize: 14,
+                fontWeight: 600,
+                lineHeight: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              −
+            </button>
+            <span
+              className="text-sm font-medium"
+              style={{ minWidth: 16, textAlign: 'center', color: 'var(--color-text-primary)' }}
+            >
+              {quantity}
+            </span>
+            <button
+              onClick={() => onQuantityChange(1)}
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text-primary)',
+                cursor: 'pointer',
+                fontSize: 14,
+                fontWeight: 600,
+                lineHeight: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              +
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

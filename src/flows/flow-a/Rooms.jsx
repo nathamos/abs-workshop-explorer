@@ -327,7 +327,7 @@ export default function Rooms() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.15 }}
-                style={dropdownPanelStyle(320)}
+                style={dropdownPanelStyle(520)}
               >
                 {/* View */}
                 <div style={{ marginBottom: 12 }}>

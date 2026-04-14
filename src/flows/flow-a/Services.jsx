@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import StepHeader from '../../components/shared/StepHeader'
 import ContextStrip from '../../components/shared/ContextStrip'
@@ -14,6 +14,7 @@ const defaultIds = allItems.filter((i) => i.defaultIncluded).map((i) => i.id)
 export default function Services() {
   const { selectedRoom, selectedServices, setSelectedServices } = useOutletContext()
   const navigate = useNavigate()
+  const [quantities, setQuantities] = useState({}) // { [itemId]: number }
 
   useEffect(() => {
     if (!selectedRoom) {
@@ -31,6 +32,20 @@ export default function Services() {
     setSelectedServices((prev) =>
       checked ? [...prev, itemId] : prev.filter((id) => id !== itemId)
     )
+    if (!checked) {
+      setQuantities((prev) => {
+        const next = { ...prev }
+        delete next[itemId]
+        return next
+      })
+    }
+  }
+
+  function handleQuantityChange(itemId, delta) {
+    setQuantities((prev) => ({
+      ...prev,
+      [itemId]: Math.max(1, (prev[itemId] || 1) + delta),
+    }))
   }
 
   const roomTotal = selectedRoom.basePricePerNight * NIGHTS
@@ -39,11 +54,18 @@ export default function Services() {
 
   const summaryServices = checkedItems
     .filter((i) => i.tag !== 'included')
-    .map((i) => ({ id: i.id, name: i.name, price: i.price }))
+    .map((i) => {
+      const qty = quantities[i.id] || 1
+      return {
+        id: i.id,
+        name: qty > 1 ? `${i.name} ×${qty}` : i.name,
+        price: i.price * qty,
+      }
+    })
 
   const addOnTotal = allItems
     .filter((i) => i.tag !== 'included' && selectedServices.includes(i.id))
-    .reduce((sum, i) => sum + i.price, 0)
+    .reduce((sum, i) => sum + i.price * (quantities[i.id] || 1), 0)
 
   const total = roomTotal + addOnTotal
 
@@ -84,6 +106,8 @@ export default function Services() {
               item={item}
               checked={selectedServices.includes(item.id)}
               onChange={(checked) => handleChange(item.id, checked)}
+              quantity={quantities[item.id] || 1}
+              onQuantityChange={(delta) => handleQuantityChange(item.id, delta)}
             />
           ))}
         </div>
