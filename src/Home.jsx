@@ -26,6 +26,11 @@ const flows = [
     label: 'Flow D — Conversational',
     description: 'Answer 5 questions; receive a curated recommendation.',
   },
+  {
+    path: '/flow-e',
+    label: 'Flow E — My Trip',
+    description: 'Pick a room, then build a chronological itinerary of services around your stay.',
+  },
 ]
 
 export default function Home() {

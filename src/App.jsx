@@ -20,6 +20,11 @@ import FlowDChat from './flows/flow-d/Chat'
 import FlowDRecommendation from './flows/flow-d/Recommendation'
 import FlowDConfirmation from './flows/flow-d/Confirmation'
 
+import FlowEIndex from './flows/flow-e/FlowEIndex'
+import FlowERooms from './flows/flow-e/Rooms'
+import FlowETrip from './flows/flow-e/Trip'
+import FlowEConfirmation from './flows/flow-e/Confirmation'
+
 import Home from './Home'
 
 export default function App() {
@@ -61,6 +66,13 @@ export default function App() {
           <Route path="chat" element={<FlowDChat />} />
           <Route path="recommendation" element={<FlowDRecommendation />} />
           <Route path="confirmation" element={<FlowDConfirmation />} />
+        </Route>
+
+        <Route path="/flow-e" element={<FlowEIndex />}>
+          <Route index element={<Navigate to="rooms" replace />} />
+          <Route path="rooms" element={<FlowERooms />} />
+          <Route path="trip" element={<FlowETrip />} />
+          <Route path="confirmation" element={<FlowEConfirmation />} />
         </Route>
       </Routes>
     </BrowserRouter>
