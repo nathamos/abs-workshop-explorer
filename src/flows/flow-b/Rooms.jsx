@@ -27,9 +27,13 @@ const sectionGroups = [
 ]
 
 function getMatchedRoom(selectedAttributes) {
-  let bestRoom = rooms[0]
+  const candidates = rooms.filter(
+    (r) => r.attributes.accessibility === (selectedAttributes.accessibility === true)
+  )
+  const pool = candidates.length > 0 ? candidates : rooms
+  let bestRoom = pool[0]
   let bestScore = -1
-  for (const room of rooms) {
+  for (const room of pool) {
     let score = 0
     for (const key of Object.keys(selectedAttributes)) {
       if (room.attributes[key] === selectedAttributes[key]) score++
@@ -84,7 +88,7 @@ export default function Rooms() {
       const val = selectedAttributes[attr.id]
       if (val === undefined) continue
       const opt = attr.options.find((o) => o.value === val)
-      if (opt) pills.push({ label: opt.label, emoji: opt.emoji })
+      if (opt && opt.emoji !== '🚫') pills.push({ label: opt.label, emoji: opt.emoji })
     }
     return pills
   }, [selectedAttributes])
@@ -195,10 +199,7 @@ export default function Rooms() {
                   transition: 'all 0.15s ease',
                 }}
               >
-                ♿{' '}
-                {selectedAttributes.accessibility
-                  ? 'Accessibility features needed'
-                  : 'No accessibility requirements'}
+                ♿ Accessible Room
               </button>
             </div>
           </div>
@@ -247,7 +248,7 @@ export default function Rooms() {
               style={{ height: '144px', borderRadius: 'var(--radius-md)' }}
             />
 
-            {/* Unpriced: pill list */}
+            {/* Unpriced: pill list + price */}
             {!priced && (
               <div className="mt-4">
                 <p
@@ -282,6 +283,19 @@ export default function Rooms() {
                       {pill.label}
                     </span>
                   ))}
+                </div>
+                <div
+                  style={{
+                    height: '1px',
+                    background: 'var(--color-border)',
+                    margin: '12px 0 10px',
+                  }}
+                />
+                <div className="flex justify-between text-sm font-semibold">
+                  <span style={{ color: 'var(--color-text-primary)' }}>
+                    Room total ({NIGHTS} nights)
+                  </span>
+                  <span style={{ color: 'var(--color-text-primary)' }}>SGD {roomTotal}</span>
                 </div>
               </div>
             )}
