@@ -26,12 +26,11 @@ const FLOOR_OPTIONS = [
 ]
 
 const EXTRA_OPTIONS = [
-  { value: 'balcony',     label: 'Balcony',          emoji: '🌅' },
-  { value: 'bathtub',     label: 'Bathtub',           emoji: '🛁' },
-  { value: 'walk-in',     label: 'Walk-in shower',    emoji: '💦' },
-  { value: 'livingArea',  label: 'Separate lounge',   emoji: '🛋️' },
+  { value: 'balcony',       label: 'Balcony',         emoji: '🌅' },
+  { value: 'bathtub',       label: 'Bathtub',         emoji: '🛁' },
+  { value: 'livingArea',    label: 'Separate lounge', emoji: '🛋️' },
   { value: 'coffeeMachine', label: 'Nespresso',       emoji: '☕' },
-  { value: 'kitchenette', label: 'Kitchenette',       emoji: '🍳' },
+  { value: 'kitchenette',   label: 'Kitchenette',     emoji: '🍳' },
 ]
 
 function initLocalAttrs(room) {

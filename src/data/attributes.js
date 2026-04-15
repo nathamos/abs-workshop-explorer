@@ -92,9 +92,8 @@ export const attributes = [
     emoji: '🚿',
     type: 'select',
     options: [
-      { value: 'shower',         label: 'Standard shower',               emoji: '🚿', priceDelta: 0 },
-      { value: 'bathtub',        label: 'Bathtub + shower',              emoji: '🛁', priceDelta: 20 },
-      { value: 'walk-in',        label: 'Walk-in shower',                emoji: '💦', priceDelta: 15 },
+      { value: 'shower',          label: 'Shower',                        emoji: '🚿', priceDelta: 0 },
+      { value: 'bathtub',         label: 'Bathtub + shower',              emoji: '🛁', priceDelta: 20 },
       { value: 'sep-bath-walkin', label: 'Separate bath + walk-in shower', emoji: '🛁', priceDelta: 35 },
     ],
   },

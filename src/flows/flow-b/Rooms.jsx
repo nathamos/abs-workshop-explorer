@@ -26,6 +26,21 @@ const sectionGroups = [
   },
 ]
 
+const ATTR_WEIGHTS = {
+  balcony:       5,  // only Deluxe has it
+  kitchen:       5,  // only Family has it
+  bedding:       4,  // twin strongly signals Family
+  livingArea:    4,  // living area signals Superior/Deluxe
+  bathroom:      3,
+  floor:         2,
+  view:          2,
+  pillows:       1,
+  smoking:       1,
+  miniBar:       0,  // not a room differentiator
+  coffeeMachine: 0,
+  accessibility: 0,  // handled by pool filter
+}
+
 function getMatchedRoom(selectedAttributes) {
   const candidates = rooms.filter(
     (r) => r.attributes.accessibility === (selectedAttributes.accessibility === true)
@@ -35,8 +50,14 @@ function getMatchedRoom(selectedAttributes) {
   let bestScore = -1
   for (const room of pool) {
     let score = 0
-    for (const key of Object.keys(selectedAttributes)) {
-      if (room.attributes[key] === selectedAttributes[key]) score++
+    for (const [key, selectedVal] of Object.entries(selectedAttributes)) {
+      const weight = ATTR_WEIGHTS[key] ?? 1
+      if (weight === 0) continue
+      if (room.attributes[key] !== selectedVal) continue
+      // Boolean false matches (e.g. both "no balcony") don't score —
+      // avoids Classic winning ties by matching on absent features
+      if (typeof selectedVal === 'boolean' && selectedVal === false) continue
+      score += weight
     }
     if (score > bestScore) {
       bestScore = score
