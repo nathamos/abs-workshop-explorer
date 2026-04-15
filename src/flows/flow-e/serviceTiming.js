@@ -1,35 +1,40 @@
-// Maps each service ID to a chronological slot within the stay.
-// slot 0 = check-in day
-// slot 1 = day 2 (mid-stay, night 1)
-// slot 2 = day 3 (mid-stay, night 2)
-// slot 3 = check-out day
-// `when` is a short sublabel shown under the service name in the itinerary.
+// Each service has a default day and time-of-day slot.
+// day:  0 = check-in day, 1 = day 2, 2 = day 3, 3 = check-out day
+// time: 'morning' | 'afternoon' | 'evening'
+//
+// These are only defaults — on the Itinerary screen the user places
+// each service into whichever day+time slot they choose.
 
 export const SERVICE_TIMING = {
-  'airport-transfer':   { slot: 0, when: 'On arrival' },
-  'welcome-amenity':    { slot: 0, when: 'On arrival' },
-  'bottle-wine':        { slot: 0, when: 'On arrival' },
-  'occasion-setup':     { slot: 0, when: 'On arrival' },
-  'fnb-credit':         { slot: 0, when: 'Throughout stay' },
-  'daily-breakfast':    { slot: 0, when: 'Each morning' },
-  'daily-housekeeping': { slot: 0, when: 'Each day' },
-  'turndown':           { slot: 0, when: 'Each evening' },
-  'gym-access':         { slot: 0, when: 'Throughout stay' },
-  'premium-wifi':       { slot: 0, when: 'Throughout stay' },
-  'desk-setup':         { slot: 0, when: 'Check-in' },
-  'cot':                { slot: 0, when: 'Check-in' },
-  'extra-bed':          { slot: 0, when: 'Check-in' },
-  'baby-kit':           { slot: 0, when: 'Check-in' },
-  'butler':             { slot: 0, when: 'Throughout stay' },
-  'breakfast-in-bed':   { slot: 1, when: 'Morning' },
-  'spa-access':         { slot: 1, when: 'Morning' },
-  'personal-training':  { slot: 1, when: 'Session' },
-  'cultural-tour':      { slot: 1, when: 'Afternoon' },
-  'meeting-room':       { slot: 1, when: 'Morning' },
-  'in-room-chef':       { slot: 1, when: 'Evening' },
-  'bike-hire':          { slot: 2, when: 'All day' },
-  'cooking-class':      { slot: 2, when: 'Morning' },
-  'express-laundry':    { slot: 2, when: 'Same-day return' },
+  'airport-transfer':   { defaultDay: 0, defaultTime: 'morning'   },
+  'welcome-amenity':    { defaultDay: 0, defaultTime: 'afternoon'  },
+  'bottle-wine':        { defaultDay: 0, defaultTime: 'evening'    },
+  'occasion-setup':     { defaultDay: 0, defaultTime: 'afternoon'  },
+  'fnb-credit':         { defaultDay: 0, defaultTime: 'afternoon'  },
+  'daily-breakfast':    { defaultDay: 0, defaultTime: 'morning'    },
+  'daily-housekeeping': { defaultDay: 0, defaultTime: 'morning'    },
+  'turndown':           { defaultDay: 0, defaultTime: 'evening'    },
+  'gym-access':         { defaultDay: 0, defaultTime: 'morning'    },
+  'premium-wifi':       { defaultDay: 0, defaultTime: 'morning'    },
+  'desk-setup':         { defaultDay: 0, defaultTime: 'morning'    },
+  'cot':                { defaultDay: 0, defaultTime: 'morning'    },
+  'extra-bed':          { defaultDay: 0, defaultTime: 'morning'    },
+  'baby-kit':           { defaultDay: 0, defaultTime: 'morning'    },
+  'butler':             { defaultDay: 0, defaultTime: 'morning'    },
+  'breakfast-in-bed':   { defaultDay: 1, defaultTime: 'morning'    },
+  'spa-access':         { defaultDay: 1, defaultTime: 'morning'    },
+  'personal-training':  { defaultDay: 1, defaultTime: 'morning'    },
+  'cultural-tour':      { defaultDay: 1, defaultTime: 'afternoon'  },
+  'meeting-room':       { defaultDay: 1, defaultTime: 'morning'    },
+  'in-room-chef':       { defaultDay: 1, defaultTime: 'evening'    },
+  'bike-hire':          { defaultDay: 2, defaultTime: 'morning'    },
+  'cooking-class':      { defaultDay: 2, defaultTime: 'morning'    },
+  'express-laundry':    { defaultDay: 2, defaultTime: 'morning'    },
 }
 
-export const DEFAULT_SERVICE_IDS = ['daily-breakfast', 'daily-housekeeping', 'gym-access']
+// Pre-populated when the flow starts
+export const DEFAULT_SERVICES = [
+  { id: 'daily-breakfast',    day: 0, time: 'morning' },
+  { id: 'daily-housekeeping', day: 0, time: 'morning' },
+  { id: 'gym-access',         day: 0, time: 'morning' },
+]

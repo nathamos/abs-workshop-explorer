@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { bookingContext } from '../../data/bookingContext'
-import { DEFAULT_SERVICE_IDS } from './serviceTiming'
+import { DEFAULT_SERVICES } from './serviceTiming'
 
 export default function FlowEIndex() {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [roomAttrs, setRoomAttrs] = useState({})
-  const [myServices, setMyServices] = useState(DEFAULT_SERVICE_IDS)
+  // Each entry: { id: string, day: 0–3, time: 'morning'|'afternoon'|'evening' }
+  const [myServices, setMyServices] = useState(DEFAULT_SERVICES)
 
   const state = {
     selectedRoom,

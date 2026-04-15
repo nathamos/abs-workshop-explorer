@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import { rooms } from '../../data/rooms'
-import StepHeader from '../../components/shared/StepHeader'
 
 function deriveRoomAttrs(room) {
   return {
@@ -35,12 +34,20 @@ export default function Rooms() {
 
   return (
     <div style={{ paddingBottom: 80 }}>
-      <StepHeader
-        step={1}
-        totalSteps={2}
-        title="Choose your room"
-        subtitle="Select a room to build your trip around."
-      />
+      <button
+        onClick={() => navigate('/flow-e/trip')}
+        style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--color-text-tertiary)', padding: '0 0 16px', display: 'block' }}
+      >
+        ← Back to trip
+      </button>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 26, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)', marginBottom: 4 }}>
+          Choose your room
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+          Select a room, then return to your trip to build your itinerary.
+        </p>
+      </div>
 
       {/* Booking context pills */}
       <div className="flex gap-3 mb-6" style={{ flexWrap: 'wrap' }}>

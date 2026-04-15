@@ -23,6 +23,7 @@ import FlowDConfirmation from './flows/flow-d/Confirmation'
 import FlowEIndex from './flows/flow-e/FlowEIndex'
 import FlowERooms from './flows/flow-e/Rooms'
 import FlowETrip from './flows/flow-e/Trip'
+import FlowEItinerary from './flows/flow-e/Itinerary'
 import FlowEConfirmation from './flows/flow-e/Confirmation'
 
 import Home from './Home'
@@ -69,9 +70,10 @@ export default function App() {
         </Route>
 
         <Route path="/flow-e" element={<FlowEIndex />}>
-          <Route index element={<Navigate to="rooms" replace />} />
-          <Route path="rooms" element={<FlowERooms />} />
+          <Route index element={<Navigate to="trip" replace />} />
           <Route path="trip" element={<FlowETrip />} />
+          <Route path="rooms" element={<FlowERooms />} />
+          <Route path="itinerary" element={<FlowEItinerary />} />
           <Route path="confirmation" element={<FlowEConfirmation />} />
         </Route>
       </Routes>

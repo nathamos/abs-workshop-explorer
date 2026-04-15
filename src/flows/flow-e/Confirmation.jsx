@@ -11,6 +11,12 @@ function buildServiceMap() {
 }
 const SERVICE_MAP = buildServiceMap()
 
+const TIME_SLOTS = [
+  { id: 'morning',   label: 'Morning'   },
+  { id: 'afternoon', label: 'Afternoon' },
+  { id: 'evening',   label: 'Evening'   },
+]
+
 function attrLabel(key, value) {
   const maps = {
     floor:    { low: 'Low floor', mid: 'Mid floor', high: 'High floor' },
@@ -19,15 +25,6 @@ function attrLabel(key, value) {
     bathroom: { shower: 'Shower', bathtub: 'Bathtub + shower', 'sep-bath-walkin': 'Walk-in shower' },
   }
   return maps[key]?.[value] ?? String(value)
-}
-
-function groupBySlot(serviceIds) {
-  const groups = { 0: [], 1: [], 2: [], 3: [] }
-  serviceIds.forEach((id) => {
-    const slot = SERVICE_TIMING[id]?.slot ?? 0
-    groups[slot].push(id)
-  })
-  return groups
 }
 
 export default function Confirmation() {
@@ -41,23 +38,20 @@ export default function Confirmation() {
   const checkOutLabel = checkOut.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
   const roomTotal     = selectedRoom ? selectedRoom.basePricePerNight * nights : 0
-  const servicesTotal = myServices.reduce((sum, id) => sum + (SERVICE_MAP[id]?.price || 0), 0)
+  const servicesTotal = myServices.reduce((sum, { id }) => sum + (SERVICE_MAP[id]?.price || 0), 0)
   const grandTotal    = roomTotal + servicesTotal
 
-  const grouped = groupBySlot(myServices)
-
-  function slotDate(slot) {
+  // Build day structure matching itinerary
+  const allDays = Array.from({ length: nights + 1 }, (_, i) => {
     const d = new Date(checkIn)
-    d.setDate(d.getDate() + slot)
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-  }
-
-  const slotMeta = [
-    { key: 0, label: 'Check-in',  date: slotDate(0) },
-    { key: 1, label: null,        date: slotDate(1) },
-    { key: 2, label: null,        date: slotDate(2) },
-    { key: 3, label: 'Check-out', date: slotDate(3) },
-  ]
+    d.setDate(d.getDate() + i)
+    const isCheckout = i === nights
+    return {
+      dayIndex: i,
+      isCheckout,
+      shortLabel: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
+    }
+  })
 
   const cardStyle = {
     background: 'var(--color-surface)',
@@ -96,10 +90,8 @@ export default function Confirmation() {
             Your room
           </div>
           <div style={{ fontSize: 20, fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 12 }}>
-            {selectedRoom?.name}
+            {selectedRoom ? `${selectedRoom.name} at ${bookingContext.property}` : 'No room selected'}
           </div>
-
-          {/* Attribute rows */}
           {roomAttrs && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {[
@@ -121,26 +113,26 @@ export default function Confirmation() {
         </div>
       </div>
 
-      {/* My stay — itinerary */}
-      <div style={cardStyle}>
-        <div style={{ padding: '16px 20px 12px' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-tertiary)' }}>
-            Your stay
+      {/* Itinerary — grouped by day × time */}
+      {myServices.length > 0 && (
+        <div style={cardStyle}>
+          <div style={{ padding: '16px 20px 12px' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-tertiary)' }}>
+              Your itinerary
+            </div>
           </div>
-        </div>
 
-        {myServices.length === 0 ? (
-          <div style={{ padding: '0 20px 20px', fontSize: 14, color: 'var(--color-text-tertiary)' }}>
-            No add-ons selected.
-          </div>
-        ) : (
-          slotMeta.map((slot) => {
-            const ids = grouped[slot.key]
-            if (ids.length === 0) return null
-            const headerText = slot.label ? `${slot.label} · ${slot.date}` : slot.date
+          {allDays.map(({ dayIndex, isCheckout, shortLabel }) => {
+            const timeSlotsForDay = isCheckout
+              ? TIME_SLOTS.filter((t) => t.id === 'morning')
+              : TIME_SLOTS
+
+            const dayHasItems = myServices.some((s) => s.day === dayIndex)
+            if (!dayHasItems) return null
+
             return (
-              <div key={slot.key}>
-                {/* Slot divider */}
+              <div key={dayIndex}>
+                {/* Day header */}
                 <div
                   style={{
                     padding: '8px 20px',
@@ -153,52 +145,72 @@ export default function Confirmation() {
                     color: 'var(--color-text-tertiary)',
                   }}
                 >
-                  {headerText}
+                  {isCheckout ? `Check-out · ${shortLabel}` : shortLabel}
                 </div>
-                {ids.map((id) => {
-                  const svc = SERVICE_MAP[id]
-                  if (!svc) return null
-                  const when = SERVICE_TIMING[id]?.when || ''
+
+                {timeSlotsForDay.map((slot) => {
+                  const slotServices = myServices.filter(
+                    (s) => s.day === dayIndex && s.time === slot.id
+                  )
+                  if (slotServices.length === 0) return null
+
                   return (
-                    <div
-                      key={id}
-                      className="flex items-start justify-between"
-                      style={{ padding: '12px 20px', borderTop: '1px solid var(--color-border)' }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div
-                          style={{
-                            width: 34,
-                            height: 34,
-                            borderRadius: 'var(--radius-md)',
-                            background: 'var(--color-surface-alt)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 16,
-                            flexShrink: 0,
-                          }}
-                        >
-                          {svc.emoji}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 2 }}>
-                            {svc.name}
-                          </div>
-                          <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>{when}</div>
-                        </div>
+                    <div key={slot.id}>
+                      <div
+                        style={{
+                          padding: '8px 20px 4px',
+                          borderTop: '1px solid var(--color-border)',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: 'var(--color-text-tertiary)',
+                          letterSpacing: '0.04em',
+                        }}
+                      >
+                        {slot.label}
                       </div>
-                      <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', flexShrink: 0, marginLeft: 12 }}>
-                        {svc.price === 0 ? 'Incl.' : `+SGD ${svc.price}`}
-                      </span>
+                      {slotServices.map(({ id, day, time }) => {
+                        const svc = SERVICE_MAP[id]
+                        if (!svc) return null
+                        return (
+                          <div
+                            key={`${id}-${day}-${time}`}
+                            className="flex items-center justify-between"
+                            style={{ padding: '9px 20px 9px 36px', borderTop: '1px solid var(--color-border)' }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                style={{
+                                  width: 30,
+                                  height: 30,
+                                  borderRadius: 'var(--radius-sm)',
+                                  background: 'var(--color-surface-alt)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: 14,
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {svc.emoji}
+                              </div>
+                              <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                                {svc.name}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', flexShrink: 0, marginLeft: 12 }}>
+                              {svc.price === 0 ? 'Incl.' : `+SGD ${svc.price}`}
+                            </span>
+                          </div>
+                        )
+                      })}
                     </div>
                   )
                 })}
               </div>
             )
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
       {/* Price breakdown */}
       <div
@@ -222,7 +234,9 @@ export default function Confirmation() {
           </div>
           {servicesTotal > 0 && (
             <div className="flex items-center justify-between">
-              <span style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>Add-ons</span>
+              <span style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                Itinerary add-ons ({myServices.length} items)
+              </span>
               <span style={{ fontSize: 14, color: 'var(--color-text-primary)' }}>SGD {servicesTotal}</span>
             </div>
           )}
@@ -274,7 +288,7 @@ export default function Confirmation() {
           ← Back to trip
         </button>
         <button
-          onClick={() => navigate('/flow-e/rooms')}
+          onClick={() => navigate('/flow-e')}
           style={{
             flex: 1,
             background: 'transparent',
