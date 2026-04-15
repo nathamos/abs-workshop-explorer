@@ -32,9 +32,16 @@ export const SERVICE_TIMING = {
   'express-laundry':    { defaultDay: 2, defaultTime: 'morning'    },
 }
 
-// Pre-populated when the flow starts
+// Pre-populated when the flow starts.
+// Recurring defaults (breakfast, housekeeping, gym) appear on all 3 stay days.
 export const DEFAULT_SERVICES = [
   { id: 'daily-breakfast',    day: 0, time: 'morning' },
+  { id: 'daily-breakfast',    day: 1, time: 'morning' },
+  { id: 'daily-breakfast',    day: 2, time: 'morning' },
   { id: 'daily-housekeeping', day: 0, time: 'morning' },
+  { id: 'daily-housekeeping', day: 1, time: 'morning' },
+  { id: 'daily-housekeeping', day: 2, time: 'morning' },
   { id: 'gym-access',         day: 0, time: 'morning' },
+  { id: 'gym-access',         day: 1, time: 'morning' },
+  { id: 'gym-access',         day: 2, time: 'morning' },
 ]

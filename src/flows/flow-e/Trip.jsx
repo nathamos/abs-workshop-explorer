@@ -1,10 +1,23 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { serviceCategories } from '../../data/services'
 import AttributePill from '../../components/shared/AttributePill'
 
-// ─── Attribute helpers (same as before) ────────────────────────────────────
+// ─── Module-level helpers ────────────────────────────────────────────────────
+
+const TIME_LABELS = { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' }
+
+function buildServiceMap() {
+  const map = {}
+  serviceCategories.forEach((cat) => {
+    cat.items.forEach((item) => { map[item.id] = item })
+  })
+  return map
+}
+const SERVICE_MAP = buildServiceMap()
+
+// ─── Attribute helpers ───────────────────────────────────────────────────────
 
 const FLOOR_OPTS = [
   { value: 'low',  label: 'Low floor',  emoji: '🌱' },
@@ -94,29 +107,12 @@ export default function Trip() {
   }
 
   // ── Itinerary summary ────────────────────────────────────────────────────
-  const dayItemCounts = useMemo(() => {
-    const counts = {}
-    myServices.forEach(({ day }) => {
-      counts[day] = (counts[day] || 0) + 1
-    })
-    return counts
-  }, [myServices])
-
   const totalItems = myServices.length
 
   // ── Pricing ──────────────────────────────────────────────────────────────
-  function buildServiceMap() {
-    const map = {}
-    serviceCategories.forEach((cat) => {
-      cat.items.forEach((item) => { map[item.id] = item })
-    })
-    return map
-  }
-  const serviceMap = buildServiceMap()
-
   const nights = bookingContext.nights
   const roomTotal = selectedRoom ? selectedRoom.basePricePerNight * nights : 0
-  const servicesTotal = myServices.reduce((sum, { id }) => sum + (serviceMap[id]?.price || 0), 0)
+  const servicesTotal = myServices.reduce((sum, { id }) => sum + (SERVICE_MAP[id]?.price || 0), 0)
   const grandTotal = roomTotal + servicesTotal
 
   // ── Date labels ──────────────────────────────────────────────────────────
@@ -364,22 +360,53 @@ export default function Trip() {
           )}
         </div>
 
-        {/* Day rows */}
+        {/* Day + item rows */}
         <div style={{ borderTop: '1px solid var(--color-border)' }}>
           {stayDays.map((dayIdx) => {
-            const count = dayItemCounts[dayIdx] || 0
+            const dayServices = myServices.filter((s) => s.day === dayIdx)
             return (
-              <div
-                key={dayIdx}
-                className="flex items-center justify-between"
-                style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border)' }}
-              >
-                <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+              <div key={dayIdx} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                {/* Day label */}
+                <div
+                  style={{
+                    padding: '7px 20px',
+                    background: 'var(--color-surface-alt)',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: 'var(--color-text-tertiary)',
+                  }}
+                >
                   {dayShortLabel(dayIdx)}
-                </span>
-                <span style={{ fontSize: 13, color: count > 0 ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)', fontWeight: count > 0 ? 500 : 400 }}>
-                  {count > 0 ? `${count} item${count !== 1 ? 's' : ''}` : '—'}
-                </span>
+                </div>
+
+                {/* Items */}
+                {dayServices.length === 0 ? (
+                  <div style={{ padding: '8px 20px', fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+                    Nothing added yet
+                  </div>
+                ) : (
+                  dayServices.map(({ id, time }) => {
+                    const svc = SERVICE_MAP[id]
+                    if (!svc) return null
+                    return (
+                      <div
+                        key={`${id}-${time}`}
+                        className="flex items-center justify-between"
+                        style={{ padding: '7px 20px' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span style={{ fontSize: 14 }}>{svc.emoji}</span>
+                          <span style={{ fontSize: 13, color: 'var(--color-text-primary)' }}>{svc.name}</span>
+                        </div>
+                        <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+                          {TIME_LABELS[time]}
+                        </span>
+                      </div>
+                    )
+                  })
+                )}
               </div>
             )
           })}
