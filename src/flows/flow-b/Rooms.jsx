@@ -88,6 +88,13 @@ export default function Rooms() {
       >
         {/* Left column — attribute checklist */}
         <div style={{ flex: '0 0 55%', paddingBottom: '120px' }}>
+          <button
+            onClick={() => navigate('/')}
+            className="text-sm mb-3"
+            style={{ color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            ← Back
+          </button>
           <StepHeader
             step={1}
             totalSteps={3}
