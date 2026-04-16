@@ -121,6 +121,13 @@ export default function Services() {
 
   return (
     <div style={{ paddingBottom: 160 }}>
+      <button
+        onClick={() => navigate('/flow-c/rooms')}
+        className="text-sm mb-3"
+        style={{ color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        ← Back
+      </button>
       <StepHeader
         step={2}
         totalSteps={3}
@@ -173,6 +180,17 @@ export default function Services() {
           const saving = bundle.id !== 'room-only' ? getSavings(bundle, roomTotal) : 0
           const discountedTotal = saving > 0 ? bundleTotal - saving : bundleTotal
 
+          const selectBtnStyle = {
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--color-teal)',
+            background: 'var(--color-teal-light)',
+            border: '1px solid var(--color-teal)',
+            borderRadius: 'var(--radius-md)',
+            padding: '7px 16px',
+            cursor: 'pointer',
+          }
+
           if (bundle.id === 'room-only') {
             return (
               <motion.div
@@ -183,57 +201,28 @@ export default function Services() {
                   background: 'var(--color-surface)',
                   border: isSelected ? '2px solid var(--color-teal)' : '1px solid var(--color-border)',
                   borderRadius: 'var(--radius-lg)',
-                  padding: '18px 20px',
+                  padding: '16px 20px',
                   cursor: 'pointer',
-                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 16,
                 }}
               >
-                {isSelected && (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: 14,
-                      right: 16,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: 'var(--color-teal)',
-                      background: 'var(--color-teal-light)',
-                      padding: '4px 10px',
-                      borderRadius: 'var(--radius-full)',
-                    }}
-                  >
-                    Selected ✓
-                  </span>
-                )}
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div style={{ fontSize: 18, fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 4 }}>
-                      {bundle.name}
-                    </div>
-                    <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{bundle.description}</div>
+                <div>
+                  <div style={{ fontSize: 18, color: 'var(--color-text-primary)', marginBottom: 4 }}>
+                    {bundle.name}
                   </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 16 }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>SGD {roomTotal}</div>
-                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{bundle.description}</div>
                 </div>
-                {!isSelected && (
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>SGD {roomTotal}</div>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleSelectBundle(bundle.id) }}
-                    style={{
-                      marginTop: 14,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: 'var(--color-teal)',
-                      background: 'var(--color-teal-light)',
-                      border: 'none',
-                      borderRadius: 'var(--radius-full)',
-                      padding: '8px 16px',
-                      cursor: 'pointer',
-                    }}
+                    style={selectBtnStyle}
                   >
-                    Select
+                    {isSelected ? 'Selected' : 'Select'}
                   </button>
-                )}
+                </div>
               </motion.div>
             )
           }
@@ -247,51 +236,24 @@ export default function Services() {
                 background: 'var(--color-surface)',
                 border: isSelected ? '2px solid var(--color-teal)' : '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-lg)',
-                padding: '18px 20px',
+                padding: '16px 20px',
                 cursor: 'pointer',
-                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 16,
+                boxShadow: isSelected ? '0 4px 8px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3)' : 'none',
               }}
             >
-              {isSelected && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: 14,
-                    right: 16,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: 'var(--color-teal)',
-                    background: 'var(--color-teal-light)',
-                    padding: '4px 10px',
-                    borderRadius: 'var(--radius-full)',
-                  }}
-                >
-                  Selected ✓
-                </span>
-              )}
-
-              <div className="flex items-start justify-between" style={{ paddingRight: isSelected ? 100 : 0 }}>
-                <div>
-                  <div style={{ fontSize: 18, fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 4 }}>
-                    {bundle.emoji && <span style={{ marginRight: 8 }}>{bundle.emoji}</span>}
-                    {bundle.name}
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 12 }}>{bundle.description}</div>
+              <div>
+                <div style={{ fontSize: 18, color: 'var(--color-text-primary)', marginBottom: 4 }}>
+                  {bundle.emoji && <span style={{ marginRight: 8 }}>{bundle.emoji}</span>}
+                  {bundle.name}
                 </div>
-                <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 16 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                    SGD {discountedTotal}
-                  </div>
-                  {saving > 0 && (
-                    <div style={{ fontSize: 12, color: 'var(--color-positive)', fontWeight: 500, marginTop: 2 }}>
-                      Save SGD {saving}
-                    </div>
-                  )}
-                </div>
+                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{bundle.description}</div>
               </div>
 
               {/* Item pills */}
-              <div className="flex flex-wrap gap-2" style={{ marginBottom: 14 }}>
+              <div className="flex flex-wrap gap-2">
                 {services.map((svc) => (
                   <span
                     key={svc.id}
@@ -305,28 +267,29 @@ export default function Services() {
                       padding: '5px 11px',
                     }}
                   >
-                    {svc.emoji} {svc.name}
+                    {svc.name}
                   </span>
                 ))}
               </div>
 
-              {!isSelected && (
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                    SGD {discountedTotal}
+                  </div>
+                  {saving > 0 && (
+                    <div style={{ fontSize: 12, color: 'var(--color-positive)', fontWeight: 500, marginTop: 2 }}>
+                      Save SGD {saving}
+                    </div>
+                  )}
+                </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleSelectBundle(bundle.id) }}
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'var(--color-teal)',
-                    background: 'var(--color-teal-light)',
-                    border: 'none',
-                    borderRadius: 'var(--radius-full)',
-                    padding: '8px 16px',
-                    cursor: 'pointer',
-                  }}
+                  style={selectBtnStyle}
                 >
-                  Select
+                  {isSelected ? 'Selected' : 'Select'}
                 </button>
-              )}
+              </div>
             </motion.div>
           )
         })}

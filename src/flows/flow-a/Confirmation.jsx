@@ -36,7 +36,7 @@ export default function Confirmation() {
         className="text-xs font-semibold uppercase mb-3"
         style={{ color: 'var(--color-teal)', letterSpacing: '0.08em' }}
       >
-        Booking confirmed
+        Review Booking
       </p>
 
       <h1
@@ -97,14 +97,18 @@ export default function Confirmation() {
 
           {checkedNonDefault.map((item) => (
             <div key={item.id} className="flex justify-between text-xs mb-0.5">
-              <span style={{ color: 'var(--color-text-secondary)' }}>{item.name}</span>
+              <span style={{ color: 'var(--color-text-secondary)' }}>
+                <span style={{ marginRight: 6 }}>•</span>{item.name}
+              </span>
               <span style={{ color: 'var(--color-text-primary)' }}>+SGD {item.price}</span>
             </div>
           ))}
 
           {removedDefaults.map((item) => (
             <div key={item.id} className="flex justify-between text-xs mb-0.5">
-              <span style={{ color: 'var(--color-text-secondary)' }}>{item.name} (removed)</span>
+              <span style={{ color: 'var(--color-text-secondary)' }}>
+                <span style={{ marginRight: 6 }}>•</span>{item.name} (removed)
+              </span>
               <span style={{ color: 'var(--color-positive)' }}>-SGD {item.price}</span>
             </div>
           ))}
@@ -119,30 +123,30 @@ export default function Confirmation() {
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex justify-end gap-1">
         <button
           onClick={() => navigate('/flow-a/services')}
-          className="flex-1 text-sm font-medium py-3 transition-colors"
+          className="text-sm font-semibold px-6 py-3"
           style={{
             borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)',
+            color: 'var(--color-text-secondary)',
             background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
           }}
         >
-          ← Back to services
+          ← Back
         </button>
         <button
-          onClick={() => navigate('/flow-a/rooms')}
-          className="flex-1 text-sm font-medium py-3 transition-colors"
+          className="text-sm font-semibold px-6 py-3 text-white"
           style={{
             borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-primary)',
-            background: 'transparent',
+            background: 'var(--color-text-primary)',
+            border: 'none',
+            cursor: 'pointer',
           }}
         >
-          Start over
+          Continue to payment →
         </button>
       </div>
     </div>
