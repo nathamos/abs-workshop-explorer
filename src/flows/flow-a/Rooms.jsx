@@ -14,12 +14,13 @@ const floorAttr = attributes.find((a) => a.id === 'floor')
 const bathroomAttr = attributes.find((a) => a.id === 'bathroom')
 const miniBarAttr = attributes.find((a) => a.id === 'miniBar')
 
+
 function toggle(arr, val) {
   return arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]
 }
 
 export default function Rooms() {
-  const { selectedRoom, setSelectedRoom, expandedDetails, setExpandedDetails } = useOutletContext()
+  const { selectedRoom, setSelectedRoom } = useOutletContext()
   const navigate = useNavigate()
 
   const [bedFilters, setBedFilters] = useState({ bedding: [], pillows: [] })
@@ -126,32 +127,6 @@ export default function Rooms() {
       }
     }
     return count
-  }
-
-  function getMatchedAttributes(room) {
-    const matched = []
-    for (const dim of activeFilterDimensions) {
-      if (dim.type === 'multi') {
-        const attrMap = { bedding: beddingAttr, pillows: pillowsAttr, view: viewAttr, floor: floorAttr, bathroom: bathroomAttr, miniBar: miniBarAttr }
-        const attrDef = attrMap[dim.key]
-        if (attrDef && dim.values.includes(room.attributes[dim.key])) {
-          const opt = attrDef.options.find((o) => o.value === room.attributes[dim.key])
-          if (opt) matched.push(opt.label)
-        }
-      } else {
-        if (room.attributes[dim.key] === dim.value) {
-          const labels = {
-            balcony: 'Balcony',
-            livingArea: 'Separate lounge',
-            coffeeMachine: 'Nespresso',
-            kitchen: 'Kitchenette',
-            accessibility: 'Accessible',
-          }
-          if (labels[dim.key]) matched.push(labels[dim.key])
-        }
-      }
-    }
-    return matched
   }
 
   const sortedRooms = useMemo(() => {
@@ -506,10 +481,8 @@ export default function Rooms() {
       {/* Room cards */}
       <div className="flex flex-col gap-3">
         <AnimatePresence>
-          {sortedRooms.map((room, idx) => {
+          {sortedRooms.map((room) => {
             const matchCount = getRoomMatchCount(room)
-            const matchedAttributes = getMatchedAttributes(room)
-            const isBestMatch = totalFilters > 0 && idx === 0 && matchCount === totalFilters
             return (
               <motion.div
                 key={room.id}
@@ -525,10 +498,6 @@ export default function Rooms() {
                   onSelect={() => handleSelect(room)}
                   matchCount={matchCount}
                   totalFilters={totalFilters}
-                  bestMatch={isBestMatch}
-                  showDetails={expandedDetails === room.id}
-                  onToggleDetails={() => setExpandedDetails(expandedDetails === room.id ? null : room.id)}
-                  matchedAttributes={matchedAttributes}
                 />
               </motion.div>
             )

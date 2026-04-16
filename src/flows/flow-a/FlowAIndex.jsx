@@ -5,15 +5,12 @@ export default function FlowAIndex() {
   const navigate = useNavigate()
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [selectedServices, setSelectedServices] = useState([])
-  const [expandedDetails, setExpandedDetails] = useState(null)
 
   const flowState = {
     selectedRoom,
     setSelectedRoom,
     selectedServices,
     setSelectedServices,
-    expandedDetails,
-    setExpandedDetails,
   }
 
   return (
