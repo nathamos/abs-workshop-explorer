@@ -25,11 +25,12 @@ export const attributes = [
   },
 
   // ── Beds ────────────────────────────────────────────────────────
+  // bedding is multiselect — rooms and user selections store an array of values
   {
     id: 'bedding',
     label: 'Bed type',
     emoji: '🛏️',
-    type: 'select',
+    type: 'multiselect',
     options: [
       { value: 'king',   label: 'King bed',    emoji: '🛏️',  priceDelta: 0 },
       { value: 'queen',  label: 'Queen bed',   emoji: '🛏️',  priceDelta: 0 },
@@ -85,7 +86,7 @@ export const attributes = [
     ],
   },
 
-  // ── Bathroom ────────────────────────────────────────────────────
+  // ── Bathroom & Living ───────────────────────────────────────────
   {
     id: 'bathroom',
     label: 'Bathroom',
@@ -97,8 +98,6 @@ export const attributes = [
       { value: 'sep-bath-walkin', label: 'Separate bath + walk-in shower', emoji: '🛁', priceDelta: 35 },
     ],
   },
-
-  // ── Living ──────────────────────────────────────────────────────
   {
     id: 'livingArea',
     label: 'Living area',
@@ -110,29 +109,6 @@ export const attributes = [
     ],
   },
   {
-    id: 'miniBar',
-    label: 'Mini bar',
-    emoji: '🍸',
-    type: 'select',
-    options: [
-      { value: 'none',      label: 'No mini bar',      emoji: '🚫', priceDelta: 0 },
-      { value: 'unstocked', label: 'Mini bar (empty)',  emoji: '🍾', priceDelta: 0 },
-      { value: 'stocked',   label: 'Stocked daily',    emoji: '🍸', priceDelta: 20 },
-    ],
-  },
-  {
-    id: 'coffeeMachine',
-    label: 'Coffee machine',
-    emoji: '☕',
-    type: 'toggle',
-    options: [
-      { value: false, label: 'No machine',       emoji: '🚫', priceDelta: 0 },
-      { value: true,  label: 'Nespresso machine', emoji: '☕', priceDelta: 10 },
-    ],
-  },
-
-  // ── Stay ────────────────────────────────────────────────────────
-  {
     id: 'kitchen',
     label: 'Kitchen',
     emoji: '🍳',
@@ -143,6 +119,18 @@ export const attributes = [
     ],
   },
   {
+    id: 'laundry',
+    label: 'In-room laundry',
+    emoji: '🧺',
+    type: 'toggle',
+    options: [
+      { value: false, label: 'No laundry',            emoji: '🚫', priceDelta: 0 },
+      { value: true,  label: 'Daily laundry service',  emoji: '🧺', priceDelta: 28 },
+    ],
+  },
+
+  // ── Stay ────────────────────────────────────────────────────────
+  {
     id: 'facilityAccess',
     label: 'Facilities',
     emoji: '🏊',
@@ -150,16 +138,6 @@ export const attributes = [
     options: [
       { value: 'room-only', label: 'Room only',          emoji: '🔑', priceDelta: 0 },
       { value: 'pool-gym',  label: 'Pool + Gym access',  emoji: '🏊', priceDelta: 22 },
-    ],
-  },
-  {
-    id: 'laundry',
-    label: 'Laundry',
-    emoji: '🧺',
-    type: 'toggle',
-    options: [
-      { value: false, label: 'No laundry',            emoji: '🚫', priceDelta: 0 },
-      { value: true,  label: 'Daily laundry service',  emoji: '🧺', priceDelta: 28 },
     ],
   },
 
@@ -196,7 +174,8 @@ export const conflicts = [
     message: "Connecting rooms don't include a balcony.",
   },
   {
-    attributes: ['kitchen:true', 'bedding:twin'],
+    // Fires when kitchen is true and bedding contains ONLY twin (no king or double)
+    attributes: ['kitchen:true', 'bedding:twin-only'],
     message: 'Kitchenette is only available with a king or double bed.',
   },
   {

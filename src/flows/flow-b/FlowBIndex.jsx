@@ -10,16 +10,15 @@ export default function FlowBIndex({ priced = false }) {
   const navigate = useNavigate()
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [selectedAttributes, setSelectedAttributes] = useState({
-    bedding: 'king',
+    bedding: ['king'],
     pillows: 'standard',
     floor: 'low',
     view: 'courtyard',
     balcony: false,
     bathroom: 'shower',
     livingArea: false,
-    miniBar: 'none',
-    coffeeMachine: false,
     kitchen: false,
+    laundry: false,
     smoking: false,
     accessibility: false,
   })

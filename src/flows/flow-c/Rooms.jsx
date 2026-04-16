@@ -26,21 +26,23 @@ const FLOOR_OPTIONS = [
 ]
 
 const EXTRA_OPTIONS = [
-  { value: 'balcony',       label: 'Balcony' },
-  { value: 'bathtub',       label: 'Bathtub' },
-  { value: 'livingArea',    label: 'Separate lounge' },
-  { value: 'coffeeMachine', label: 'Nespresso' },
-  { value: 'kitchenette',   label: 'Kitchenette' },
+  { value: 'balcony',     label: 'Balcony' },
+  { value: 'bathtub',     label: 'Bathtub' },
+  { value: 'livingArea',  label: 'Separate lounge' },
+  { value: 'laundry',     label: 'In-room laundry' },
+  { value: 'kitchenette', label: 'Kitchenette' },
 ]
 
 function initLocalAttrs(room) {
   return {
-    bedding: room.attributes.bedding || 'king',
+    bedding: Array.isArray(room.attributes.bedding) ? [...room.attributes.bedding] : [room.attributes.bedding || 'king'],
     view: room.attributes.view || 'city',
     floor: room.attributes.floor || 'mid',
     extras: {
       balcony: room.attributes.balcony || false,
-      bathtub: room.attributes.bathroom === 'bathtub',
+      bathtub: room.attributes.bathroom === 'bathtub' || room.attributes.bathroom === 'sep-bath-walkin',
+      livingArea: room.attributes.livingArea || false,
+      laundry: room.attributes.laundry || false,
       kitchenette: room.attributes.kitchen || false,
     },
   }
@@ -304,8 +306,19 @@ export default function Rooms() {
                             <AttributePill
                               key={opt.value}
                               label={opt.label}
-                              selected={localAttrs[room.id].bedding === opt.value}
-                              onClick={() => setAttr(room.id, 'bedding', opt.value)}
+                              selected={Array.isArray(localAttrs[room.id].bedding) ? localAttrs[room.id].bedding.includes(opt.value) : localAttrs[room.id].bedding === opt.value}
+                              onClick={() => {
+                                setLocalAttrs((prev) => {
+                                  const current = Array.isArray(prev[room.id].bedding) ? prev[room.id].bedding : [prev[room.id].bedding]
+                                  const next = current.includes(opt.value)
+                                    ? current.filter((v) => v !== opt.value)
+                                    : [...current, opt.value]
+                                  return {
+                                    ...prev,
+                                    [room.id]: { ...prev[room.id], bedding: next.length > 0 ? next : current },
+                                  }
+                                })
+                              }}
                             />
                           ))}
                         </div>
