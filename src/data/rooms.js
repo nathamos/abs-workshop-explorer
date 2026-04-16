@@ -6,7 +6,7 @@ export const rooms = [
     badge: null,
     tagline: 'King bed · City-facing · 26 m²',
     description: 'A well-appointed room with city views and a king bed. Clean, comfortable, and everything you need.',
-    image: '/assets/rooms/classic-room.jpg',
+    image: '/assets/classic-room.jpg',
     basePricePerNight: 180,
     size: 26,
     attributes: {
@@ -33,7 +33,7 @@ export const rooms = [
     badge: 'Popular',
     tagline: 'King bed · Marina-facing · 30 m²',
     description: 'A spacious superior room with sweeping marina views and a king bed. The most-booked room at The Straits.',
-    image: '/assets/rooms/superior-room.jpg',
+    image: '/assets/superior-room.jpg',
     basePricePerNight: 200,
     size: 30,
     attributes: {
@@ -60,7 +60,7 @@ export const rooms = [
     badge: null,
     tagline: 'King bed · Marina view · Balcony · 34 m²',
     description: 'A generous deluxe room with a private balcony overlooking the marina. Perfect for watching the sunset.',
-    image: '/assets/rooms/deluxe-balcony.jpg',
+    image: '/assets/deluxe-balcony.jpg',
     basePricePerNight: 245,
     size: 34,
     attributes: {
@@ -87,7 +87,7 @@ export const rooms = [
     badge: 'Great for families',
     tagline: 'Twin beds + double · Connecting · City-facing · 42 m²',
     description: 'Two interconnecting rooms — one with twin beds, one with a double — ideal for families travelling with children.',
-    image: '/assets/rooms/family-room.jpg',
+    image: '/assets/family-room.jpg',
     basePricePerNight: 265,
     size: 42,
     attributes: {
@@ -114,7 +114,7 @@ export const rooms = [
     badge: null,
     tagline: 'King bed · Courtyard · Accessible · 30 m²',
     description: 'Fully accessible room on a low floor with wide doorways, roll-in shower, and ground-level access.',
-    image: '/assets/rooms/accessible-room.jpg',
+    image: '/assets/accessible-room.jpg',
     basePricePerNight: 180,
     size: 30,
     attributes: {
