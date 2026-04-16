@@ -221,13 +221,6 @@ export default function Rooms() {
 
   return (
     <div>
-      <button
-        onClick={() => navigate('/')}
-        className="text-sm mb-3"
-        style={{ color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-      >
-        ← Back
-      </button>
       <StepHeader
         step={1}
         totalSteps={3}
