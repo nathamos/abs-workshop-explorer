@@ -71,6 +71,13 @@ export default function Services() {
 
   return (
     <div style={{ paddingBottom: '120px' }}>
+      <button
+        onClick={() => navigate('/flow-a/rooms')}
+        className="text-sm mb-3"
+        style={{ color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        ← Back
+      </button>
       <StepHeader
         step={2}
         totalSteps={3}

@@ -14,19 +14,13 @@ const floorAttr = attributes.find((a) => a.id === 'floor')
 const bathroomAttr = attributes.find((a) => a.id === 'bathroom')
 const miniBarAttr = attributes.find((a) => a.id === 'miniBar')
 
-function formatPrice(amount, paymentType) {
-  if (paymentType === 'points') {
-    return `${(amount * 100).toLocaleString()} pts`
-  }
-  return `SGD ${amount}`
-}
 
 function toggle(arr, val) {
   return arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]
 }
 
 export default function Rooms() {
-  const { selectedRoom, setSelectedRoom, expandedDetails, setExpandedDetails } = useOutletContext()
+  const { selectedRoom, setSelectedRoom } = useOutletContext()
   const navigate = useNavigate()
 
   const [bedFilters, setBedFilters] = useState({ bedding: [], pillows: [] })
@@ -42,7 +36,6 @@ export default function Rooms() {
   })
   const [accessibilityFilter, setAccessibilityFilter] = useState(false)
   const [sort, setSort] = useState('best')
-  const [paymentType, setPaymentType] = useState('sgd')
   const [openDropdown, setOpenDropdown] = useState(null) // 'beds' | 'amenities' | null
 
   const bedsRef = useRef(null)
@@ -134,32 +127,6 @@ export default function Rooms() {
       }
     }
     return count
-  }
-
-  function getMatchedAttributes(room) {
-    const matched = []
-    for (const dim of activeFilterDimensions) {
-      if (dim.type === 'multi') {
-        const attrMap = { bedding: beddingAttr, pillows: pillowsAttr, view: viewAttr, floor: floorAttr, bathroom: bathroomAttr, miniBar: miniBarAttr }
-        const attrDef = attrMap[dim.key]
-        if (attrDef && dim.values.includes(room.attributes[dim.key])) {
-          const opt = attrDef.options.find((o) => o.value === room.attributes[dim.key])
-          if (opt) matched.push(opt.label)
-        }
-      } else {
-        if (room.attributes[dim.key] === dim.value) {
-          const labels = {
-            balcony: 'Balcony',
-            livingArea: 'Separate lounge',
-            coffeeMachine: 'Nespresso',
-            kitchen: 'Kitchenette',
-            accessibility: 'Accessible',
-          }
-          if (labels[dim.key]) matched.push(labels[dim.key])
-        }
-      }
-    }
-    return matched
   }
 
   const sortedRooms = useMemo(() => {
@@ -268,7 +235,7 @@ export default function Rooms() {
             onClick={() => setOpenDropdown(openDropdown === 'beds' ? null : 'beds')}
             style={dropdownBtnStyle(bedCount > 0)}
           >
-            🛏️ Beds{bedCount > 0 ? ` (${bedCount})` : ''}
+            Beds{bedCount > 0 ? ` (${bedCount})` : ''}
           </button>
           <AnimatePresence>
             {openDropdown === 'beds' && (
@@ -318,7 +285,7 @@ export default function Rooms() {
             onClick={() => setOpenDropdown(openDropdown === 'amenities' ? null : 'amenities')}
             style={dropdownBtnStyle(amenityCount > 0)}
           >
-            ✨ Amenities{amenityCount > 0 ? ` (${amenityCount})` : ''}
+            Amenities{amenityCount > 0 ? ` (${amenityCount})` : ''}
           </button>
           <AnimatePresence>
             {openDropdown === 'amenities' && (
@@ -448,81 +415,37 @@ export default function Rooms() {
         {/* Accessibility toggle (no dropdown) */}
         <button
           onClick={() => setAccessibilityFilter((v) => !v)}
-          style={{
-            borderRadius: 'var(--radius-full)',
-            padding: '8px 14px',
-            fontSize: 16,
-            cursor: 'pointer',
-            border: accessibilityFilter ? '1.5px solid var(--color-teal)' : '1px solid var(--color-border)',
-            background: accessibilityFilter ? 'var(--color-teal-light)' : 'var(--color-surface)',
-            color: accessibilityFilter ? 'var(--color-teal)' : 'var(--color-text-secondary)',
-            lineHeight: 1,
-          }}
+          style={dropdownBtnStyle(accessibilityFilter)}
           title="Accessible rooms only"
         >
-          ♿
+          Accessibility
         </button>
       </div>
 
-      {/* Sort + payment row */}
-      <div className="flex items-center justify-between mb-3">
-        {/* Sort buttons */}
-        <div className="flex gap-2">
-          {[
-            { value: 'best', label: 'Best match' },
-            { value: 'price', label: 'Price' },
-          ].map(({ value, label }) => (
-            <button
-              key={value}
-              onClick={() => setSort(value)}
-              style={{
-                borderRadius: 'var(--radius-full)',
-                padding: '6px 14px',
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: 'pointer',
-                border: sort === value ? '1.5px solid var(--color-text-primary)' : '1px solid var(--color-border)',
-                background: sort === value ? 'var(--color-text-primary)' : 'var(--color-surface)',
-                color: sort === value ? 'white' : 'var(--color-text-secondary)',
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Payment type toggle */}
-        <div
-          style={{
-            display: 'flex',
-            background: 'var(--color-surface-alt)',
-            borderRadius: 'var(--radius-full)',
-            padding: 2,
-          }}
-        >
-          {[
-            { value: 'sgd', label: 'SGD' },
-            { value: 'points', label: 'Points' },
-          ].map(({ value, label }) => (
-            <button
-              key={value}
-              onClick={() => setPaymentType(value)}
-              style={{
-                borderRadius: 'var(--radius-full)',
-                padding: '6px 14px',
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: 'pointer',
-                border: 'none',
-                background: paymentType === value ? 'var(--color-surface)' : 'transparent',
-                color: paymentType === value ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                boxShadow: paymentType === value ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+      {/* Sort row */}
+      <div className="flex items-center gap-2 mb-3">
+        <span style={{ fontSize: 14, color: 'var(--color-text-primary)' }}>Sort by:</span>
+        {[
+          { value: 'best', label: 'Best match' },
+          { value: 'price', label: 'Price' },
+        ].map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setSort(value)}
+            style={{
+              borderRadius: 'var(--radius-full)',
+              padding: '6px 14px',
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+              border: sort === value ? '1.5px solid var(--color-text-primary)' : '1px solid var(--color-border)',
+              background: sort === value ? 'var(--color-text-primary)' : 'var(--color-surface)',
+              color: sort === value ? 'white' : 'var(--color-text-secondary)',
+            }}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Match counter */}
@@ -558,14 +481,8 @@ export default function Rooms() {
       {/* Room cards */}
       <div className="flex flex-col gap-3">
         <AnimatePresence>
-          {sortedRooms.map((room, idx) => {
+          {sortedRooms.map((room) => {
             const matchCount = getRoomMatchCount(room)
-            const matchedAttributes = getMatchedAttributes(room)
-            const isBestMatch = totalFilters > 0 && idx === 0 && matchCount === totalFilters
-            const altPrice =
-              paymentType === 'points'
-                ? `${(room.basePricePerNight * 100).toLocaleString()} pts`
-                : null
             return (
               <motion.div
                 key={room.id}
@@ -581,11 +498,6 @@ export default function Rooms() {
                   onSelect={() => handleSelect(room)}
                   matchCount={matchCount}
                   totalFilters={totalFilters}
-                  bestMatch={isBestMatch}
-                  showDetails={expandedDetails === room.id}
-                  onToggleDetails={() => setExpandedDetails(expandedDetails === room.id ? null : room.id)}
-                  matchedAttributes={matchedAttributes}
-                  altPrice={altPrice}
                 />
               </motion.div>
             )
