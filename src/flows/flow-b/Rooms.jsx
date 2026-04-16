@@ -166,7 +166,6 @@ export default function Rooms() {
                             <AttributePill
                               key={String(opt.value)}
                               label={opt.label}
-                              emoji={opt.emoji}
                               selected={selectedAttributes[attrId] === opt.value}
                               onClick={() => handlePillClick(attrId, opt.value)}
                               priceDelta={opt.priceDelta}
@@ -300,7 +299,6 @@ export default function Rooms() {
                         fontWeight: 500,
                       }}
                     >
-                      {pill.emoji && <span>{pill.emoji}</span>}
                       {pill.label}
                     </span>
                   ))}

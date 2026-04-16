@@ -85,33 +85,6 @@ export default function Confirmation() {
 
   return (
     <div className="max-w-[800px] mx-auto px-6 py-8" style={{ paddingBottom: '48px' }}>
-      {/* Success header */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="mb-8"
-      >
-        <div
-          className="w-12 h-12 flex items-center justify-center text-2xl mb-4"
-          style={{
-            background: 'var(--color-teal-light)',
-            borderRadius: 'var(--radius-full)',
-          }}
-        >
-          ✓
-        </div>
-        <h1
-          className="text-3xl mb-1"
-          style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}
-        >
-          You're all set
-        </h1>
-        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          Review your booking below before finalising payment.
-        </p>
-      </motion.div>
-
       {/* Room summary card */}
       <div
         className="mb-4"
@@ -163,7 +136,6 @@ export default function Confirmation() {
                 fontWeight: 500,
               }}
             >
-              {pill.emoji && <span>{pill.emoji}</span>}
               {pill.label}
             </span>
           ))}
@@ -261,21 +233,14 @@ export default function Confirmation() {
           onClick={() => navigate('../services')}
           className="w-full text-sm font-medium transition-opacity hover:opacity-70"
           style={{
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-md)',
             color: 'var(--color-text-secondary)',
             padding: '12px',
+            background: 'none',
           }}
         >
           ← Back to services
-        </button>
-        <button
-          onClick={() => navigate('../rooms')}
-          className="w-full text-sm font-medium transition-opacity hover:opacity-70"
-          style={{
-            color: 'var(--color-text-tertiary)',
-            padding: '8px',
-          }}
-        >
-          Start over
         </button>
       </div>
     </div>
