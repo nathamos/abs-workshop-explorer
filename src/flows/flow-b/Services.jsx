@@ -248,6 +248,13 @@ export default function Services() {
   // Home screen
   return (
     <div className="max-w-[800px] mx-auto px-6 py-8" style={{ paddingBottom: '120px' }}>
+      <button
+        onClick={() => navigate('../rooms')}
+        className="text-sm mb-3"
+        style={{ color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        ← Back
+      </button>
       <StepHeader
         step={2}
         totalSteps={3}
