@@ -13,7 +13,23 @@
       "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
       "Bash(npm --version)",
       "Bash(npm run:*)",
-      "Bash(kill %1)"
+      "Bash(kill %1)",
+      "Bash(git rm:*)",
+      "Bash(claude mcp:*)",
+      "mcp__figma__generate_figma_design",
+      "Bash(open \"http://localhost:5173/#figmacapture=8c99a1bd-80b1-473f-8237-efac4437f679&figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2F8c99a1bd-80b1-473f-8237-efac4437f679%2Fsubmit&figmadelay=1000\")",
+      "Bash(open \"https://www.figma.com/design/VCIhk6TzsiomuQJ2kDkpS3\")",
+      "mcp__figma__create_design_system_rules",
+      "Bash(git checkout:*)",
+      "mcp__figma__get_design_context",
+      "mcp__figma__get_code_connect_suggestions",
+      "mcp__figma__send_code_connect_mappings",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/flow-b/rooms)",
+      "Bash(git push:*)",
+      "Bash(lsof -ti:5173)",
+      "mcp__figma__use_figma",
+      "Bash(git fetch:*)",
+      "Bash(git stash:*)"
     ]
   }
 }
