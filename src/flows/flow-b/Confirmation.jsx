@@ -70,15 +70,23 @@ export default function Confirmation() {
   // Build attribute pills for display
   const attrPills = useMemo(() => {
     if (!selectedAttributes) return []
-    return attributes
-      .map((attr) => {
-        const val = selectedAttributes[attr.id]
-        if (val === undefined) return null
-        const opt = attr.options.find((o) => o.value === val)
-        if (!opt) return null
-        return { label: opt.label, emoji: opt.emoji }
-      })
-      .filter(Boolean)
+    const pills = []
+    for (const attr of attributes) {
+      const val = selectedAttributes[attr.id]
+      if (val === undefined) continue
+      // Handle multi-select (array) attributes like bedding
+      if (Array.isArray(val)) {
+        for (const v of val) {
+          const opt = attr.options.find((o) => o.value === v)
+          if (opt && opt.emoji !== '🚫') pills.push({ label: opt.label, emoji: opt.emoji })
+        }
+        continue
+      }
+      const opt = attr.options.find((o) => o.value === val)
+      if (!opt) continue
+      pills.push({ label: opt.label, emoji: opt.emoji })
+    }
+    return pills
   }, [selectedAttributes])
 
   const roomName = selectedRoom?.name ?? 'Your room'

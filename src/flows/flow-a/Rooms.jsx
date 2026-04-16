@@ -12,7 +12,6 @@ const pillowsAttr = attributes.find((a) => a.id === 'pillows')
 const viewAttr = attributes.find((a) => a.id === 'view')
 const floorAttr = attributes.find((a) => a.id === 'floor')
 const bathroomAttr = attributes.find((a) => a.id === 'bathroom')
-const miniBarAttr = attributes.find((a) => a.id === 'miniBar')
 
 
 function toggle(arr, val) {
@@ -30,9 +29,8 @@ export default function Rooms() {
     bathroom: [],
     balcony: null,
     livingArea: null,
-    miniBar: [],
-    coffeeMachine: null,
     kitchen: null,
+    laundry: null,
   })
   const [accessibilityFilter, setAccessibilityFilter] = useState(false)
   const [sort, setSort] = useState('best')
@@ -73,9 +71,8 @@ export default function Rooms() {
       amenityFilters.bathroom.length +
       (amenityFilters.balcony !== null ? 1 : 0) +
       (amenityFilters.livingArea !== null ? 1 : 0) +
-      amenityFilters.miniBar.length +
-      (amenityFilters.coffeeMachine !== null ? 1 : 0) +
-      (amenityFilters.kitchen !== null ? 1 : 0)
+      (amenityFilters.kitchen !== null ? 1 : 0) +
+      (amenityFilters.laundry !== null ? 1 : 0)
     )
   }
 
@@ -91,9 +88,8 @@ export default function Rooms() {
       bathroom: [],
       balcony: null,
       livingArea: null,
-      miniBar: [],
-      coffeeMachine: null,
       kitchen: null,
+      laundry: null,
     })
     setAccessibilityFilter(false)
   }
@@ -108,9 +104,8 @@ export default function Rooms() {
     if (amenityFilters.bathroom.length) dims.push({ key: 'bathroom', type: 'multi', values: amenityFilters.bathroom })
     if (amenityFilters.balcony !== null) dims.push({ key: 'balcony', type: 'bool', value: true })
     if (amenityFilters.livingArea !== null) dims.push({ key: 'livingArea', type: 'bool', value: true })
-    if (amenityFilters.miniBar.length) dims.push({ key: 'miniBar', type: 'multi', values: amenityFilters.miniBar })
-    if (amenityFilters.coffeeMachine !== null) dims.push({ key: 'coffeeMachine', type: 'bool', value: true })
     if (amenityFilters.kitchen !== null) dims.push({ key: 'kitchen', type: 'bool', value: true })
+    if (amenityFilters.laundry !== null) dims.push({ key: 'laundry', type: 'bool', value: true })
     if (accessibilityFilter) dims.push({ key: 'accessibility', type: 'bool', value: true })
     return dims
   }, [bedFilters, amenityFilters, accessibilityFilter])
@@ -121,13 +116,20 @@ export default function Rooms() {
     let count = 0
     for (const dim of activeFilterDimensions) {
       if (dim.type === 'multi') {
-        if (dim.values.includes(room.attributes[dim.key])) count++
+        const roomVal = room.attributes[dim.key]
+        // bedding is an array in room data — check for any overlap
+        if (Array.isArray(roomVal)) {
+          if (dim.values.some((v) => roomVal.includes(v))) count++
+        } else {
+          if (dim.values.includes(roomVal)) count++
+        }
       } else {
         if (room.attributes[dim.key] === dim.value) count++
       }
     }
     return count
   }
+
 
   const sortedRooms = useMemo(() => {
     const withCounts = rooms.map((r) => ({ room: r, count: getRoomMatchCount(r) }))
@@ -368,42 +370,26 @@ export default function Rooms() {
                   </div>
                 </div>
 
-                {/* Mini bar */}
-                <div style={{ marginBottom: 12 }}>
-                  <GroupLabel>Mini bar</GroupLabel>
-                  <div className="flex flex-wrap gap-2">
-                    {miniBarAttr.options.filter((o) => o.value === 'unstocked' || o.value === 'stocked').map((opt) => (
-                      <AttributePill
-                        key={opt.value}
-                        label={opt.label}
-                        emoji={opt.emoji}
-                        selected={amenityFilters.miniBar.includes(opt.value)}
-                        onClick={() => setAmenityFilters((f) => ({ ...f, miniBar: toggle(f.miniBar, opt.value) }))}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Coffee machine */}
-                <div style={{ marginBottom: 12 }}>
-                  <GroupLabel>Coffee machine</GroupLabel>
-                  <div className="flex flex-wrap gap-2">
-                    <AttributePill
-                      label="Nespresso ☕"
-                      selected={amenityFilters.coffeeMachine !== null}
-                      onClick={() => setAmenityFilters((f) => ({ ...f, coffeeMachine: f.coffeeMachine !== null ? null : true }))}
-                    />
-                  </div>
-                </div>
-
                 {/* Kitchen */}
-                <div>
+                <div style={{ marginBottom: 12 }}>
                   <GroupLabel>Kitchen</GroupLabel>
                   <div className="flex flex-wrap gap-2">
                     <AttributePill
                       label="Kitchenette 🍳"
                       selected={amenityFilters.kitchen !== null}
                       onClick={() => setAmenityFilters((f) => ({ ...f, kitchen: f.kitchen !== null ? null : true }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Laundry */}
+                <div>
+                  <GroupLabel>In-room laundry</GroupLabel>
+                  <div className="flex flex-wrap gap-2">
+                    <AttributePill
+                      label="Daily laundry 🧺"
+                      selected={amenityFilters.laundry !== null}
+                      onClick={() => setAmenityFilters((f) => ({ ...f, laundry: f.laundry !== null ? null : true }))}
                     />
                   </div>
                 </div>

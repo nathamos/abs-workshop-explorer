@@ -49,6 +49,10 @@ function attrLabel(key, value) {
     bedding:  { king: 'King bed', queen: 'Queen bed', twin: 'Twin beds', double: 'Double bed', sofa: 'Sofa bed' },
     bathroom: { shower: 'Shower', bathtub: 'Bathtub + shower', 'sep-bath-walkin': 'Walk-in shower' },
   }
+  // bedding is an array — join all bed labels
+  if (key === 'bedding' && Array.isArray(value)) {
+    return value.map((v) => maps.bedding[v] ?? v).join(' + ')
+  }
   return maps[key]?.[value] ?? String(value)
 }
 
@@ -294,15 +298,37 @@ export default function Trip() {
                     </div>
                     <PillRow label="Floor"    opts={FLOOR_OPTS} value={draftAttrs.floor}    onChange={(v) => setDraftAttr('floor', v)} />
                     <PillRow label="View"     opts={VIEW_OPTS}  value={draftAttrs.view}     onChange={(v) => setDraftAttr('view', v)} />
-                    <PillRow label="Bed type" opts={BED_OPTS}   value={draftAttrs.bedding}  onChange={(v) => setDraftAttr('bedding', v)} />
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 8 }}>Bed type</div>
+                      <div className="flex flex-wrap gap-2">
+                        {BED_OPTS.map((opt) => {
+                          const beds = Array.isArray(draftAttrs.bedding) ? draftAttrs.bedding : [draftAttrs.bedding]
+                          const isSelected = beds.includes(opt.value)
+                          return (
+                            <AttributePill
+                              key={opt.value}
+                              label={opt.label}
+                              emoji={opt.emoji}
+                              selected={isSelected}
+                              onClick={() => {
+                                const next = isSelected
+                                  ? beds.filter((v) => v !== opt.value)
+                                  : [...beds, opt.value]
+                                setDraftAttr('bedding', next.length > 0 ? next : beds)
+                              }}
+                            />
+                          )
+                        })}
+                      </div>
+                    </div>
                     <PillRow label="Bathroom" opts={BATH_OPTS}  value={draftAttrs.bathroom} onChange={(v) => setDraftAttr('bathroom', v)} />
                     <div style={{ marginBottom: 20 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 8 }}>Extras</div>
                       <div className="flex flex-wrap gap-2">
                         {[
-                          { key: 'balcony',       label: 'Private balcony', emoji: '🌅' },
-                          { key: 'livingArea',    label: 'Separate lounge', emoji: '🛋️' },
-                          { key: 'coffeeMachine', label: 'Nespresso',       emoji: '☕' },
+                          { key: 'balcony',    label: 'Private balcony',  emoji: '🌅' },
+                          { key: 'livingArea', label: 'Separate lounge',  emoji: '🛋️' },
+                          { key: 'laundry',    label: 'In-room laundry',  emoji: '🧺' },
                         ].map((extra) => (
                           <AttributePill
                             key={extra.key}

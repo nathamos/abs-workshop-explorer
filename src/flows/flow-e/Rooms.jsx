@@ -10,7 +10,7 @@ function deriveRoomAttrs(room) {
     bathroom: room.attributes.bathroom,
     balcony: room.attributes.balcony,
     livingArea: room.attributes.livingArea,
-    coffeeMachine: room.attributes.coffeeMachine,
+    laundry: room.attributes.laundry,
   }
 }
 

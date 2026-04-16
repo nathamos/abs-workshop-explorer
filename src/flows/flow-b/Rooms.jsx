@@ -4,6 +4,7 @@ import StepHeader from '../../components/shared/StepHeader'
 import AttributePill from '../../components/shared/AttributePill'
 import { rooms } from '../../data/rooms'
 import { attributes, conflicts } from '../../data/attributes'
+import { findBestRoom, getActiveConflict as getActiveConflictFn } from '../../data/roomMatching'
 
 const NIGHTS = 3
 
@@ -18,7 +19,7 @@ const sectionGroups = [
   },
   {
     label: 'YOUR BATHROOM & LIVING SPACE',
-    ids: ['bathroom', 'livingArea', 'miniBar', 'coffeeMachine', 'kitchen'],
+    ids: ['bathroom', 'livingArea', 'kitchen', 'laundry'],
   },
   {
     label: 'ROOM REQUIREMENTS',
@@ -26,74 +27,30 @@ const sectionGroups = [
   },
 ]
 
-const ATTR_WEIGHTS = {
-  balcony:       5,  // only Deluxe has it
-  kitchen:       5,  // only Family has it
-  bedding:       4,  // twin strongly signals Family
-  livingArea:    4,  // living area signals Superior/Deluxe
-  bathroom:      3,
-  floor:         2,
-  view:          2,
-  pillows:       1,
-  smoking:       1,
-  miniBar:       0,  // not a room differentiator
-  coffeeMachine: 0,
-  accessibility: 0,  // handled by pool filter
-}
 
-function getMatchedRoom(selectedAttributes) {
-  const candidates = rooms.filter(
-    (r) => r.attributes.accessibility === (selectedAttributes.accessibility === true)
-  )
-  const pool = candidates.length > 0 ? candidates : rooms
-  let bestRoom = pool[0]
-  let bestScore = -1
-  for (const room of pool) {
-    let score = 0
-    for (const [key, selectedVal] of Object.entries(selectedAttributes)) {
-      const weight = ATTR_WEIGHTS[key] ?? 1
-      if (weight === 0) continue
-      if (room.attributes[key] !== selectedVal) continue
-      // Boolean false matches (e.g. both "no balcony") don't score —
-      // avoids Classic winning ties by matching on absent features
-      if (typeof selectedVal === 'boolean' && selectedVal === false) continue
-      score += weight
-    }
-    if (score > bestScore) {
-      bestScore = score
-      bestRoom = room
-    }
-  }
-  return bestRoom
-}
-
-function getActiveConflict(selectedAttributes) {
-  for (const conflict of conflicts) {
-    const allMatch = conflict.attributes.every((entry) => {
-      const [key, rawVal] = entry.split(':')
-      let val
-      if (rawVal === 'true') val = true
-      else if (rawVal === 'false') val = false
-      else if (!isNaN(Number(rawVal))) val = Number(rawVal)
-      else val = rawVal
-      return selectedAttributes[key] === val
-    })
-    if (allMatch) return conflict
-  }
-  return null
-}
 
 
 export default function Rooms() {
   const { selectedAttributes, setSelectedAttributes, setSelectedRoom, priced } = useOutletContext()
   const navigate = useNavigate()
 
-  const matchedRoom = useMemo(() => getMatchedRoom(selectedAttributes), [selectedAttributes])
-  const activeConflict = useMemo(() => getActiveConflict(selectedAttributes), [selectedAttributes])
+  const matchedRoom = useMemo(() => findBestRoom(rooms, selectedAttributes), [selectedAttributes])
+  const activeConflict = useMemo(() => getActiveConflictFn(conflicts, selectedAttributes), [selectedAttributes])
   const roomTotal = matchedRoom.basePricePerNight * NIGHTS
 
   function handlePillClick(attrId, value) {
-    setSelectedAttributes((prev) => ({ ...prev, [attrId]: value }))
+    if (attrId === 'bedding') {
+      setSelectedAttributes((prev) => {
+        const current = Array.isArray(prev.bedding) ? prev.bedding : [prev.bedding]
+        const next = current.includes(value)
+          ? current.filter((v) => v !== value)
+          : [...current, value]
+        // Keep at least one bed selected
+        return { ...prev, bedding: next.length > 0 ? next : current }
+      })
+    } else {
+      setSelectedAttributes((prev) => ({ ...prev, [attrId]: value }))
+    }
   }
 
   function handleBook() {
@@ -108,6 +65,14 @@ export default function Rooms() {
     for (const attr of attributes) {
       const val = selectedAttributes[attr.id]
       if (val === undefined) continue
+      // Handle multi-select (array) attributes
+      if (Array.isArray(val)) {
+        for (const v of val) {
+          const opt = attr.options.find((o) => o.value === v)
+          if (opt && opt.emoji !== '🚫') pills.push({ label: opt.label, emoji: opt.emoji })
+        }
+        continue
+      }
       const opt = attr.options.find((o) => o.value === val)
       if (opt && opt.emoji !== '🚫') pills.push({ label: opt.label, emoji: opt.emoji })
     }
@@ -166,7 +131,11 @@ export default function Rooms() {
                             <AttributePill
                               key={String(opt.value)}
                               label={opt.label}
-                              selected={selectedAttributes[attrId] === opt.value}
+                              selected={
+                                attrId === 'bedding'
+                                  ? (Array.isArray(selectedAttributes.bedding) ? selectedAttributes.bedding.includes(opt.value) : selectedAttributes.bedding === opt.value)
+                                  : selectedAttributes[attrId] === opt.value
+                              }
                               onClick={() => handlePillClick(attrId, opt.value)}
                               priceDelta={opt.priceDelta}
                               showPrice={priced}
