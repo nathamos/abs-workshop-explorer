@@ -10,6 +10,11 @@ import { attributes } from '../../data/attributes'
 
 const NIGHTS = 3
 
+const allItems = serviceCategories.flatMap((c) => c.items)
+const standardItems = allItems.filter((i) => i.standardInclusion)
+
+const STANDARD_CAT_ID = 'standard-inclusions'
+
 function calcRoomBase(matchedRoom, selectedAttributes) {
   if (!matchedRoom) return 0
   const base = matchedRoom.basePricePerNight * NIGHTS
@@ -31,11 +36,7 @@ function calcServiceAdjustment(selectedServices) {
     for (const item of cat.items) {
       if (item.tag === 'included') continue
       const checked = selectedServices.includes(item.id)
-      if (item.defaultIncluded) {
-        if (checked) adj -= item.price
-      } else {
-        if (checked) adj += item.price
-      }
+      if (!item.defaultIncluded && checked) adj += item.price
     }
   }
   return adj
@@ -46,10 +47,7 @@ function buildServicesSummaryList(selectedServices) {
   for (const cat of serviceCategories) {
     for (const item of cat.items) {
       if (item.tag === 'included') continue
-      const checked = selectedServices.includes(item.id)
-      if (item.defaultIncluded && checked) {
-        list.push({ id: item.id, name: item.name, price: -item.price })
-      } else if (!item.defaultIncluded && checked) {
+      if (!item.defaultIncluded && selectedServices.includes(item.id)) {
         list.push({ id: item.id, name: item.name, price: item.price })
       }
     }
@@ -74,16 +72,6 @@ export default function Services() {
 
   const servicesSummaryList = useMemo(() => buildServicesSummaryList(selectedServices), [selectedServices])
 
-  const activeCategory = activeCategoryId
-    ? serviceCategories.find((c) => c.id === activeCategoryId)
-    : null
-
-  function toggleService(id) {
-    setSelectedServices((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    )
-  }
-
   function getCountForCategory(catId) {
     const cat = serviceCategories.find((c) => c.id === catId)
     if (!cat) return 0
@@ -93,21 +81,12 @@ export default function Services() {
   }
 
   const roomName = selectedRoom?.name ?? 'Your room'
+  const runningTotal = roomBase + serviceAdj
 
-  if (activeCategory) {
-    const catTotal = activeCategory.items.reduce((acc, item) => {
-      if (item.tag === 'included') return acc
-      const checked = selectedServices.includes(item.id)
-      if (item.defaultIncluded && checked) return acc - item.price
-      if (!item.defaultIncluded && checked) return acc + item.price
-      return acc
-    }, 0)
-
-    const runningTotal = roomBase + serviceAdj
-
+  // ── Standard inclusions sub-page ────────────────────────────────────────────
+  if (activeCategoryId === STANDARD_CAT_ID) {
     return (
       <div className="max-w-[800px] mx-auto px-6 py-8" style={{ paddingBottom: '120px' }}>
-        {/* Top bar */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setActiveCategoryId(null)}
@@ -116,28 +95,73 @@ export default function Services() {
           >
             ← Back
           </button>
-          <p
-            className="text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            {activeCategory.label}
+          <p className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+            Standard inclusions
           </p>
           <button
             onClick={() => setDrawerOpen(true)}
             className="text-sm font-semibold px-3 py-1.5 rounded-full"
-            style={{
-              background: 'var(--color-teal)',
-              color: 'white',
-              borderRadius: 'var(--radius-full)',
-            }}
+            style={{ background: 'var(--color-teal)', color: 'white', borderRadius: 'var(--radius-full)' }}
           >
             SGD {runningTotal}
           </button>
         </div>
 
-        {/* Items */}
+        <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 16 }}>
+          These services are included with every stay at no extra charge.
+        </p>
+
         <div>
-          {activeCategory.items.map((item) => (
+          {standardItems.map((item) => (
+            <ServiceItem
+              key={item.id}
+              item={item}
+              checked={true}
+              onChange={() => {}}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={() => setActiveCategoryId(null)}
+          className="w-full text-base font-semibold text-white mt-6"
+          style={{ background: 'var(--color-text-primary)', borderRadius: 'var(--radius-md)', padding: '16px' }}
+        >
+          Done
+        </button>
+      </div>
+    )
+  }
+
+  // ── Category sub-page ────────────────────────────────────────────────────────
+  if (activeCategoryId) {
+    const activeCategory = serviceCategories.find((c) => c.id === activeCategoryId)
+    const optionalItems = activeCategory.items.filter((i) => !i.standardInclusion)
+
+    return (
+      <div className="max-w-[800px] mx-auto px-6 py-8" style={{ paddingBottom: '120px' }}>
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => setActiveCategoryId(null)}
+            className="text-sm font-medium"
+            style={{ color: 'var(--color-teal)' }}
+          >
+            ← Back
+          </button>
+          <p className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+            {activeCategory.label}
+          </p>
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="text-sm font-semibold px-3 py-1.5 rounded-full"
+            style={{ background: 'var(--color-teal)', color: 'white', borderRadius: 'var(--radius-full)' }}
+          >
+            SGD {runningTotal}
+          </button>
+        </div>
+
+        <div>
+          {optionalItems.map((item) => (
             <ServiceItem
               key={item.id}
               item={item}
@@ -151,20 +175,15 @@ export default function Services() {
           ))}
         </div>
 
-        {/* Done button */}
         <button
           onClick={() => setActiveCategoryId(null)}
           className="w-full text-base font-semibold text-white mt-6"
-          style={{
-            background: 'var(--color-text-primary)',
-            borderRadius: 'var(--radius-md)',
-            padding: '16px',
-          }}
+          style={{ background: 'var(--color-text-primary)', borderRadius: 'var(--radius-md)', padding: '16px' }}
         >
           Done
         </button>
 
-        {/* Bottom drawer — full bill */}
+        {/* Bottom drawer */}
         <AnimatePresence>
           {drawerOpen && (
             <>
@@ -192,28 +211,17 @@ export default function Services() {
                   overflowY: 'auto',
                 }}
               >
-                <p
-                  className="text-base font-semibold mb-4"
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
+                <p className="text-base font-semibold mb-4" style={{ color: 'var(--color-text-primary)' }}>
                   Full bill
                 </p>
                 <div className="flex justify-between text-sm mb-2">
-                  <span style={{ color: 'var(--color-text-secondary)' }}>
-                    {roomName} · {NIGHTS} nights
-                  </span>
+                  <span style={{ color: 'var(--color-text-secondary)' }}>{roomName} · {NIGHTS} nights</span>
                   <span style={{ color: 'var(--color-text-primary)' }}>SGD {roomBase}</span>
                 </div>
                 {servicesSummaryList.map((svc) => (
                   <div key={svc.id} className="flex justify-between text-sm mb-1">
                     <span style={{ color: 'var(--color-text-secondary)' }}>{svc.name}</span>
-                    <span
-                      style={{
-                        color: svc.price < 0 ? 'var(--color-positive)' : 'var(--color-text-primary)',
-                      }}
-                    >
-                      {svc.price < 0 ? `-SGD ${Math.abs(svc.price)}` : `+SGD ${svc.price}`}
-                    </span>
+                    <span style={{ color: 'var(--color-text-primary)' }}>+SGD {svc.price}</span>
                   </div>
                 ))}
                 <div
@@ -228,12 +236,7 @@ export default function Services() {
                 <button
                   onClick={() => setDrawerOpen(false)}
                   className="w-full text-sm font-semibold mt-4"
-                  style={{
-                    background: 'var(--color-surface-alt)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '12px',
-                    color: 'var(--color-text-primary)',
-                  }}
+                  style={{ background: 'var(--color-surface-alt)', borderRadius: 'var(--radius-md)', padding: '12px', color: 'var(--color-text-primary)' }}
                 >
                   Close
                 </button>
@@ -245,7 +248,12 @@ export default function Services() {
     )
   }
 
-  // Home screen
+  // ── Home screen ──────────────────────────────────────────────────────────────
+  const optionalCategories = serviceCategories.map((cat) => ({
+    ...cat,
+    items: cat.items.filter((i) => !i.standardInclusion),
+  })).filter((cat) => cat.items.length > 0)
+
   return (
     <div className="max-w-[800px] mx-auto px-6 py-8" style={{ paddingBottom: '120px' }}>
       <button
@@ -259,7 +267,7 @@ export default function Services() {
         step={2}
         totalSteps={3}
         title="Enhance your stay"
-        subtitle="Add services, or opt out of defaults for a credit."
+        subtitle="Review what's included, then add extras."
       />
 
       <ContextStrip
@@ -278,7 +286,33 @@ export default function Services() {
           border: '1px solid var(--color-border)',
         }}
       >
-        {serviceCategories.map((cat, idx) => {
+        {/* Standard inclusions tile */}
+        <button
+          onClick={() => setActiveCategoryId(STANDARD_CAT_ID)}
+          className="w-full flex items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-gray-50"
+          style={{ borderBottom: '1px solid var(--color-border)' }}
+        >
+          <div
+            className="w-12 h-12 flex items-center justify-center text-2xl flex-shrink-0"
+            style={{ background: 'var(--color-teal-light)', borderRadius: 'var(--radius-md)' }}
+          >
+            ✓
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+              Standard inclusions
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+              Breakfast, room service, gym — always included
+            </p>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, color: 'var(--color-text-tertiary)' }}>
+            <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        {/* Optional category tiles */}
+        {optionalCategories.map((cat, idx) => {
           const count = getCountForCategory(cat.id)
           return (
             <button
@@ -286,20 +320,13 @@ export default function Services() {
               onClick={() => setActiveCategoryId(cat.id)}
               className="w-full flex items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-gray-50"
               style={{
-                borderBottom:
-                  idx < serviceCategories.length - 1
-                    ? '1px solid var(--color-border)'
-                    : 'none',
+                borderBottom: idx < optionalCategories.length - 1 ? '1px solid var(--color-border)' : 'none',
               }}
             >
-              {/* Emoji icon with counter badge */}
               <div className="relative flex-shrink-0">
                 <div
                   className="w-12 h-12 flex items-center justify-center text-2xl"
-                  style={{
-                    background: 'var(--color-surface-alt)',
-                    borderRadius: 'var(--radius-md)',
-                  }}
+                  style={{ background: 'var(--color-surface-alt)', borderRadius: 'var(--radius-md)' }}
                 >
                   {cat.emoji}
                 </div>
@@ -307,53 +334,23 @@ export default function Services() {
                   <div
                     className="absolute flex items-center justify-center"
                     style={{
-                      top: '-4px',
-                      right: '-4px',
-                      width: '18px',
-                      height: '18px',
+                      top: '-4px', right: '-4px',
+                      width: '18px', height: '18px',
                       background: 'var(--color-teal)',
                       borderRadius: '9999px',
-                      color: 'white',
-                      fontSize: '11px',
-                      fontWeight: 600,
+                      color: 'white', fontSize: '11px', fontWeight: 600,
                     }}
                   >
                     {count}
                   </div>
                 )}
               </div>
-
-              {/* Name + description */}
               <div className="flex-1 min-w-0">
-                <p
-                  className="text-sm font-medium"
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
-                  {cat.label}
-                </p>
-                <p
-                  className="text-xs mt-0.5"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  {cat.description}
-                </p>
+                <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{cat.label}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{cat.description}</p>
               </div>
-
-              {/* Chevron */}
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                style={{ flexShrink: 0, color: 'var(--color-text-tertiary)' }}
-              >
-                <path
-                  d="M6 4l4 4-4 4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, color: 'var(--color-text-tertiary)' }}>
+                <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
           )

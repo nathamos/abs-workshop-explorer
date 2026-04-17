@@ -255,7 +255,6 @@ export default function Rooms() {
                       <AttributePill
                         key={opt.value}
                         label={opt.label}
-                        emoji={opt.emoji}
                         selected={bedFilters.bedding.includes(opt.value)}
                         onClick={() => setBedFilters((f) => ({ ...f, bedding: toggle(f.bedding, opt.value) }))}
                       />
@@ -269,7 +268,6 @@ export default function Rooms() {
                       <AttributePill
                         key={opt.value}
                         label={opt.label}
-                        emoji={opt.emoji}
                         selected={bedFilters.pillows.includes(opt.value)}
                         onClick={() => setBedFilters((f) => ({ ...f, pillows: toggle(f.pillows, opt.value) }))}
                       />
@@ -306,7 +304,6 @@ export default function Rooms() {
                       <AttributePill
                         key={opt.value}
                         label={opt.label}
-                        emoji={opt.emoji}
                         selected={amenityFilters.view.includes(opt.value)}
                         onClick={() => setAmenityFilters((f) => ({ ...f, view: toggle(f.view, opt.value) }))}
                       />
@@ -322,7 +319,6 @@ export default function Rooms() {
                       <AttributePill
                         key={opt.value}
                         label={opt.label}
-                        emoji={opt.emoji}
                         selected={amenityFilters.floor.includes(opt.value)}
                         onClick={() => setAmenityFilters((f) => ({ ...f, floor: toggle(f.floor, opt.value) }))}
                       />
@@ -338,7 +334,6 @@ export default function Rooms() {
                       <AttributePill
                         key={opt.value}
                         label={opt.label}
-                        emoji={opt.emoji}
                         selected={amenityFilters.bathroom.includes(opt.value)}
                         onClick={() => setAmenityFilters((f) => ({ ...f, bathroom: toggle(f.bathroom, opt.value) }))}
                       />
@@ -351,7 +346,7 @@ export default function Rooms() {
                   <GroupLabel>Balcony</GroupLabel>
                   <div className="flex flex-wrap gap-2">
                     <AttributePill
-                      label="Balcony 🌅"
+                      label="Balcony"
                       selected={amenityFilters.balcony !== null}
                       onClick={() => setAmenityFilters((f) => ({ ...f, balcony: f.balcony !== null ? null : true }))}
                     />
@@ -363,7 +358,7 @@ export default function Rooms() {
                   <GroupLabel>Living area</GroupLabel>
                   <div className="flex flex-wrap gap-2">
                     <AttributePill
-                      label="Separate lounge 🛋️"
+                      label="Separate lounge"
                       selected={amenityFilters.livingArea !== null}
                       onClick={() => setAmenityFilters((f) => ({ ...f, livingArea: f.livingArea !== null ? null : true }))}
                     />
@@ -375,7 +370,7 @@ export default function Rooms() {
                   <GroupLabel>Kitchen</GroupLabel>
                   <div className="flex flex-wrap gap-2">
                     <AttributePill
-                      label="Kitchenette 🍳"
+                      label="Kitchenette"
                       selected={amenityFilters.kitchen !== null}
                       onClick={() => setAmenityFilters((f) => ({ ...f, kitchen: f.kitchen !== null ? null : true }))}
                     />
@@ -387,7 +382,7 @@ export default function Rooms() {
                   <GroupLabel>In-room laundry</GroupLabel>
                   <div className="flex flex-wrap gap-2">
                     <AttributePill
-                      label="Daily laundry 🧺"
+                      label="Daily laundry"
                       selected={amenityFilters.laundry !== null}
                       onClick={() => setAmenityFilters((f) => ({ ...f, laundry: f.laundry !== null ? null : true }))}
                     />

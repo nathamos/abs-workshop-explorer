@@ -56,13 +56,10 @@ function attrLabel(key, value) {
   return maps[key]?.[value] ?? String(value)
 }
 
-function AttrRow({ icon, label, value }) {
+function AttrRow({ label, value }) {
   return (
     <div className="flex items-center justify-between" style={{ paddingTop: 10 }}>
-      <div className="flex items-center gap-2">
-        <span style={{ fontSize: 13 }}>{icon}</span>
-        <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{label}</span>
-      </div>
+      <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{label}</span>
       <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>{value}</span>
     </div>
   )
@@ -79,7 +76,6 @@ function PillRow({ label, opts, value, onChange }) {
           <AttributePill
             key={opt.value}
             label={opt.label}
-            emoji={opt.emoji}
             selected={value === opt.value}
             onClick={() => onChange(opt.value)}
           />
@@ -234,10 +230,10 @@ export default function Trip() {
                         marginBottom: 16,
                       }}
                     >
-                      <AttrRow icon="🏢" label="Location"  value={attrLabel('floor',    roomAttrs.floor)} />
-                      <AttrRow icon="🌇" label="View"      value={attrLabel('view',     roomAttrs.view)} />
-                      <AttrRow icon="🛏️" label="Bed"       value={attrLabel('bedding',  roomAttrs.bedding)} />
-                      <AttrRow icon="🚿" label="Bathroom"  value={attrLabel('bathroom', roomAttrs.bathroom)} />
+                      <AttrRow label="Location"  value={attrLabel('floor',    roomAttrs.floor)} />
+                      <AttrRow label="View"      value={attrLabel('view',     roomAttrs.view)} />
+                      <AttrRow label="Bed"       value={attrLabel('bedding',  roomAttrs.bedding)} />
+                      <AttrRow label="Bathroom"  value={attrLabel('bathroom', roomAttrs.bathroom)} />
                     </div>
                     <div className="flex gap-3">
                       <button
@@ -308,7 +304,6 @@ export default function Trip() {
                             <AttributePill
                               key={opt.value}
                               label={opt.label}
-                              emoji={opt.emoji}
                               selected={isSelected}
                               onClick={() => {
                                 const next = isSelected
@@ -326,14 +321,13 @@ export default function Trip() {
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 8 }}>Extras</div>
                       <div className="flex flex-wrap gap-2">
                         {[
-                          { key: 'balcony',    label: 'Private balcony',  emoji: '🌅' },
-                          { key: 'livingArea', label: 'Separate lounge',  emoji: '🛋️' },
-                          { key: 'laundry',    label: 'In-room laundry',  emoji: '🧺' },
+                          { key: 'balcony',    label: 'Private balcony' },
+                          { key: 'livingArea', label: 'Separate lounge' },
+                          { key: 'laundry',    label: 'In-room laundry' },
                         ].map((extra) => (
                           <AttributePill
                             key={extra.key}
                             label={extra.label}
-                            emoji={extra.emoji}
                             selected={!!draftAttrs[extra.key]}
                             onClick={() => setDraftAttr(extra.key, !draftAttrs[extra.key])}
                           />

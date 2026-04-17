@@ -4,26 +4,22 @@ import { serviceCategories } from '../../data/services'
 import StepHeader from '../../components/shared/StepHeader'
 import BookingSummary from '../../components/shared/BookingSummary'
 
+const allItems = serviceCategories.flatMap((c) => c.items)
+const standardItems = allItems.filter((i) => i.standardInclusion)
+
 const bundles = [
-  {
-    id: 'room-only',
-    name: 'Room only',
-    description: 'The Straits experience, no extras.',
-    serviceIds: [],
-    emoji: null,
-  },
   {
     id: 'romantic',
     name: 'Romantic getaway',
     description: 'Everything for a special occasion.',
-    serviceIds: ['daily-breakfast', 'bottle-wine', 'turndown', 'occasion-setup'],
+    serviceIds: ['bottle-wine', 'turndown', 'occasion-setup'],
     emoji: '💑',
   },
   {
     id: 'weekend',
     name: 'Weekend escape',
     description: 'Rest, relax, and recharge.',
-    serviceIds: ['daily-breakfast', 'welcome-amenity', 'spa-access'],
+    serviceIds: ['welcome-amenity', 'spa-access'],
     emoji: '🌿',
   },
   {
@@ -37,7 +33,7 @@ const bundles = [
     id: 'family',
     name: 'Family break',
     description: 'Room for everyone, and a little extra ease.',
-    serviceIds: ['cot', 'baby-kit', 'daily-breakfast', 'extra-bed'],
+    serviceIds: ['cot', 'baby-kit', 'extra-bed'],
     emoji: '👨‍👩‍👧',
   },
   {
@@ -46,6 +42,13 @@ const bundles = [
     description: "You're here for the city. Let's set you up.",
     serviceIds: ['cultural-tour', 'bike-hire', 'fnb-credit', 'welcome-amenity'],
     emoji: '🚲',
+  },
+  {
+    id: 'room-only',
+    name: 'Room only',
+    description: 'The Straits experience. Standard inclusions not included.',
+    serviceIds: [],
+    emoji: null,
   },
 ]
 
@@ -169,6 +172,35 @@ export default function Services() {
           <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-tertiary)', marginBottom: 2 }}>Guests</div>
           <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)' }}>{bookingContext.guests} guests</div>
         </div>
+      </div>
+
+      {/* Standard inclusions banner */}
+      <div
+        style={{
+          background: 'var(--color-teal-light)',
+          border: '1px solid var(--color-teal)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '14px 18px',
+          marginBottom: 20,
+        }}
+      >
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-teal)', marginBottom: 10 }}>
+          Included with every stay
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {standardItems.map((item) => (
+            <div key={item.id} className="flex items-center gap-3">
+              <span style={{ fontSize: 16 }}>{item.emoji}</span>
+              <div>
+                <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>{item.name}</span>
+                <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginLeft: 6 }}>{item.description}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 10 }}>
+          Not included in the Room only option.
+        </p>
       </div>
 
       {/* Bundle cards */}

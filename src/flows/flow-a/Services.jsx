@@ -9,12 +9,14 @@ import { serviceCategories } from '../../data/services'
 const NIGHTS = 3
 
 const allItems = serviceCategories.flatMap((c) => c.items)
-const defaultIds = allItems.filter((i) => i.defaultIncluded).map((i) => i.id)
+const standardItems = allItems.filter((i) => i.standardInclusion)
+const optionalItems = allItems.filter((i) => !i.standardInclusion)
+const defaultOptionalIds = optionalItems.filter((i) => i.defaultIncluded).map((i) => i.id)
 
 export default function Services() {
   const { selectedRoom, selectedServices, setSelectedServices } = useOutletContext()
   const navigate = useNavigate()
-  const [quantities, setQuantities] = useState({}) // { [itemId]: number }
+  const [quantities, setQuantities] = useState({})
 
   useEffect(() => {
     if (!selectedRoom) {
@@ -22,7 +24,7 @@ export default function Services() {
       return
     }
     if (selectedServices.length === 0) {
-      setSelectedServices(defaultIds)
+      setSelectedServices(defaultOptionalIds)
     }
   }, [selectedRoom])
 
@@ -50,24 +52,31 @@ export default function Services() {
 
   const roomTotal = selectedRoom.basePricePerNight * NIGHTS
 
-  const checkedItems = allItems.filter((i) => selectedServices.includes(i.id))
+  const checkedOptional = optionalItems.filter((i) => selectedServices.includes(i.id))
 
-  const summaryServices = checkedItems
-    .filter((i) => i.tag !== 'included')
-    .map((i) => {
-      const qty = quantities[i.id] || 1
-      return {
-        id: i.id,
-        name: qty > 1 ? `${i.name} ×${qty}` : i.name,
-        price: i.price * qty,
-      }
-    })
+  const summaryServices = checkedOptional.map((i) => {
+    const qty = quantities[i.id] || 1
+    return {
+      id: i.id,
+      name: qty > 1 ? `${i.name} ×${qty}` : i.name,
+      price: i.price * qty,
+    }
+  })
 
-  const addOnTotal = allItems
-    .filter((i) => i.tag !== 'included' && selectedServices.includes(i.id))
-    .reduce((sum, i) => sum + i.price * (quantities[i.id] || 1), 0)
+  const addOnTotal = checkedOptional.reduce(
+    (sum, i) => sum + i.price * (quantities[i.id] || 1),
+    0
+  )
 
   const total = roomTotal + addOnTotal
+
+  const sectionHeadingStyle = {
+    fontSize: '16px',
+    fontWeight: 600,
+    color: 'var(--color-text-primary)',
+    borderBottom: '1px solid var(--color-border)',
+    paddingBottom: '8px',
+  }
 
   return (
     <div style={{ paddingBottom: '120px' }}>
@@ -93,32 +102,46 @@ export default function Services() {
         guests="2 guests"
       />
 
-      {serviceCategories.map((category) => (
-        <div key={category.id} className="mb-6">
-          <h2
-            className="mb-2"
-            style={{
-              fontSize: '16px',
-              fontWeight: 600,
-              color: 'var(--color-text-primary)',
-              borderBottom: '1px solid var(--color-border)',
-              paddingBottom: '8px',
-            }}
-          >
-            {category.label}
-          </h2>
-          {category.items.map((item) => (
-            <ServiceItem
-              key={item.id}
-              item={item}
-              checked={selectedServices.includes(item.id)}
-              onChange={(checked) => handleChange(item.id, checked)}
-              quantity={quantities[item.id] || 1}
-              onQuantityChange={(delta) => handleQuantityChange(item.id, delta)}
-            />
-          ))}
-        </div>
-      ))}
+      {/* Standard inclusions */}
+      <div className="mb-6">
+        <h2 className="mb-2" style={sectionHeadingStyle}>
+          What's included
+        </h2>
+        {standardItems.map((item) => (
+          <ServiceItem
+            key={item.id}
+            item={item}
+            checked={true}
+            onChange={() => {}}
+          />
+        ))}
+      </div>
+
+      {/* Optional add-ons by category */}
+      {serviceCategories.map((category) => {
+        const items = category.items.filter((i) => !i.standardInclusion)
+        if (items.length === 0) return null
+        return (
+          <div key={category.id} className="mb-6">
+            <h2
+              className="mb-2"
+              style={sectionHeadingStyle}
+            >
+              {category.label}
+            </h2>
+            {items.map((item) => (
+              <ServiceItem
+                key={item.id}
+                item={item}
+                checked={selectedServices.includes(item.id)}
+                onChange={(checked) => handleChange(item.id, checked)}
+                quantity={quantities[item.id] || 1}
+                onQuantityChange={(delta) => handleQuantityChange(item.id, delta)}
+              />
+            ))}
+          </div>
+        )
+      })}
 
       <BookingSummary
         roomName={selectedRoom.name}
