@@ -5,12 +5,7 @@ import { rooms } from '../../data/rooms'
 function deriveRoomAttrs(room) {
   return {
     floor: room.attributes.floor,
-    view: room.attributes.view,
-    bedding: room.attributes.bedding,
-    bathroom: room.attributes.bathroom,
-    balcony: room.attributes.balcony,
-    livingArea: room.attributes.livingArea,
-    laundry: room.attributes.laundry,
+    pillows: room.attributes.pillows,
   }
 }
 

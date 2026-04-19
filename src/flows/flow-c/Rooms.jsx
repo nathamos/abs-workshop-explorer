@@ -5,19 +5,22 @@ import { rooms } from '../../data/rooms'
 import StepHeader from '../../components/shared/StepHeader'
 import AttributePill from '../../components/shared/AttributePill'
 
-const BED_OPTIONS = [
-  { value: 'king',   label: 'King bed' },
-  { value: 'queen',  label: 'Queen bed' },
-  { value: 'twin',   label: 'Twin beds' },
-  { value: 'double', label: 'Double bed' },
-  { value: 'sofa',   label: 'Sofa bed' },
-]
+// ── Label maps for read-only room fact display ───────────────────────────────
 
-const VIEW_OPTIONS = [
-  { value: 'city',      label: 'City view' },
-  { value: 'marina',    label: 'Marina view' },
-  { value: 'courtyard', label: 'Courtyard' },
-]
+const BED_LABELS = {
+  king: 'King bed', queen: 'Queen bed', twin: 'Twin beds',
+  double: 'Double bed', sofa: 'Sofa bed',
+}
+const VIEW_LABELS = {
+  city: 'City view', marina: 'Marina view', courtyard: 'Courtyard view',
+}
+const BATH_LABELS = {
+  shower: 'Shower',
+  bathtub: 'Bathtub + shower',
+  'sep-bath-walkin': 'Separate bath + walk-in shower',
+}
+
+// ── Preference options (hotel can honour these for any room) ─────────────────
 
 const FLOOR_OPTIONS = [
   { value: 'low',  label: 'Low floor' },
@@ -25,26 +28,30 @@ const FLOOR_OPTIONS = [
   { value: 'high', label: 'High floor' },
 ]
 
-const EXTRA_OPTIONS = [
-  { value: 'balcony',     label: 'Balcony' },
-  { value: 'bathtub',     label: 'Bathtub' },
-  { value: 'livingArea',  label: 'Separate lounge' },
-  { value: 'laundry',     label: 'In-room laundry' },
-  { value: 'kitchenette', label: 'Kitchenette' },
+const PILLOW_OPTIONS = [
+  { value: 'standard',    label: 'Standard' },
+  { value: 'firm',        label: 'Firm' },
+  { value: 'feather',     label: 'Feather' },
+  { value: 'memory-foam', label: 'Memory foam' },
 ]
+
+// Chip style for read-only structural attributes
+const infoChipStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '5px 12px',
+  borderRadius: 'var(--radius-full)',
+  background: 'var(--color-surface-alt)',
+  border: '1px solid var(--color-border)',
+  color: 'var(--color-text-secondary)',
+  fontSize: 13,
+  fontWeight: 500,
+}
 
 function initLocalAttrs(room) {
   return {
-    bedding: Array.isArray(room.attributes.bedding) ? [...room.attributes.bedding] : [room.attributes.bedding || 'king'],
-    view: room.attributes.view || 'city',
     floor: room.attributes.floor || 'mid',
-    extras: {
-      balcony: room.attributes.balcony || false,
-      bathtub: room.attributes.bathroom === 'bathtub' || room.attributes.bathroom === 'sep-bath-walkin',
-      livingArea: room.attributes.livingArea || false,
-      laundry: room.attributes.laundry || false,
-      kitchenette: room.attributes.kitchen || false,
-    },
+    pillows: room.attributes.pillows || 'standard',
   }
 }
 
@@ -74,19 +81,6 @@ export default function Rooms() {
     }))
   }
 
-  function toggleExtra(roomId, extra) {
-    setLocalAttrs((prev) => ({
-      ...prev,
-      [roomId]: {
-        ...prev[roomId],
-        extras: {
-          ...prev[roomId].extras,
-          [extra]: !prev[roomId].extras[extra],
-        },
-      },
-    }))
-  }
-
   function handleSelect(room) {
     setters.setSelectedRoom(room)
     setters.setSelectedRoomAttributes(localAttrs[room.id])
@@ -112,10 +106,7 @@ export default function Rooms() {
       />
 
       {/* Booking context bar */}
-      <div
-        className="flex gap-3 mb-6"
-        style={{ flexWrap: 'wrap' }}
-      >
+      <div className="flex gap-3 mb-6" style={{ flexWrap: 'wrap' }}>
         {[
           { label: 'CHECK-IN', value: checkInLabel },
           { label: 'CHECK-OUT', value: checkOutLabel },
@@ -131,25 +122,10 @@ export default function Rooms() {
               minWidth: 100,
             }}
           >
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                letterSpacing: '0.08em',
-                color: 'var(--color-text-tertiary)',
-                textTransform: 'uppercase',
-                marginBottom: 2,
-              }}
-            >
+            <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', marginBottom: 2 }}>
               {pill.label}
             </div>
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: 500,
-                color: 'var(--color-text-primary)',
-              }}
-            >
+            <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)' }}>
               {pill.value}
             </div>
           </div>
@@ -162,15 +138,25 @@ export default function Rooms() {
           const isExpanded = expandedId === room.id
           const isSelected = selectedId === room.id
           const isDimmed = selectedId && selectedId !== room.id
+          const attrs = room.attributes
+
+          // Build structural fact chips for this room
+          const factChips = [
+            ...(Array.isArray(attrs.bedding) ? attrs.bedding : [attrs.bedding]).map((b) => BED_LABELS[b] ?? b),
+            VIEW_LABELS[attrs.view] ?? attrs.view,
+            BATH_LABELS[attrs.bathroom] ?? attrs.bathroom,
+            ...(attrs.balcony    ? ['Private balcony']    : []),
+            ...(attrs.livingArea ? ['Separate lounge']    : []),
+            ...(attrs.kitchen    ? ['Kitchenette']        : []),
+            ...(attrs.laundry    ? ['In-room laundry']    : []),
+          ]
 
           return (
             <div
               key={room.id}
               style={{
                 borderRadius: 'var(--radius-lg)',
-                border: isSelected
-                  ? '2px solid var(--color-teal)'
-                  : '1px solid var(--color-border)',
+                border: isSelected ? '2px solid var(--color-teal)' : '1px solid var(--color-border)',
                 background: 'var(--color-surface)',
                 overflow: 'hidden',
                 opacity: isDimmed ? 0.6 : 1,
@@ -182,26 +168,15 @@ export default function Rooms() {
                 <img
                   src={room.image}
                   alt={room.name}
-                  style={{
-                    width: '100%',
-                    height: 160,
-                    objectFit: 'cover',
-                    display: 'block',
-                  }}
+                  style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
                 />
                 {room.badge && (
                   <span
                     style={{
-                      position: 'absolute',
-                      top: 10,
-                      left: 10,
-                      background: 'var(--color-surface)',
-                      color: 'var(--color-text-secondary)',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      padding: '4px 10px',
-                      borderRadius: 'var(--radius-full)',
-                      border: '1px solid var(--color-border)',
+                      position: 'absolute', top: 10, left: 10,
+                      background: 'var(--color-surface)', color: 'var(--color-text-secondary)',
+                      fontSize: 11, fontWeight: 600, padding: '4px 10px',
+                      borderRadius: 'var(--radius-full)', border: '1px solid var(--color-border)',
                     }}
                   >
                     {room.badge}
@@ -217,15 +192,7 @@ export default function Rooms() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <div
-                      style={{
-                        fontSize: 18,
-                        fontWeight: 600,
-                        fontFamily: 'var(--font-display)',
-                        color: 'var(--color-text-primary)',
-                        marginBottom: 4,
-                      }}
-                    >
+                    <div style={{ fontSize: 18, fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)', marginBottom: 4 }}>
                       {room.name}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
@@ -234,16 +201,7 @@ export default function Rooms() {
                   </div>
                   <div className="flex items-center gap-3 ml-4 flex-shrink-0">
                     {isSelected && (
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: 'var(--color-teal)',
-                          background: 'var(--color-teal-light)',
-                          padding: '4px 10px',
-                          borderRadius: 'var(--radius-full)',
-                        }}
-                      >
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-teal)', background: 'var(--color-teal-light)', padding: '4px 10px', borderRadius: 'var(--radius-full)' }}>
                         Selected ✓
                       </span>
                     )}
@@ -269,130 +227,58 @@ export default function Rooms() {
                     transition={{ duration: 0.25, ease: 'easeInOut' }}
                     style={{ overflow: 'hidden' }}
                   >
-                    <div
-                      style={{
-                        padding: '0 20px 20px',
-                        borderTop: '1px solid var(--color-border)',
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          letterSpacing: '0.1em',
-                          textTransform: 'uppercase',
-                          color: 'var(--color-text-tertiary)',
-                          marginTop: 16,
-                          marginBottom: 14,
-                        }}
-                      >
-                        Personalise this room
+                    <div style={{ padding: '0 20px 20px', borderTop: '1px solid var(--color-border)' }}>
+
+                      {/* ── Room includes (structural facts — read-only) ── */}
+                      <div style={{ marginTop: 16, marginBottom: 20 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-tertiary)', marginBottom: 10 }}>
+                          Room includes
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {factChips.map((chip) => (
+                            <span key={chip} style={infoChipStyle}>{chip}</span>
+                          ))}
+                        </div>
                       </div>
 
-                      {/* Bed type */}
+                      {/* ── Your preferences (hotel can honour) ── */}
                       <div style={{ marginBottom: 14 }}>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: 'var(--color-text-secondary)',
-                            marginBottom: 8,
-                          }}
-                        >
-                          Bed type
+                        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-tertiary)', marginBottom: 12 }}>
+                          Your preferences
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {BED_OPTIONS.map((opt) => (
-                            <AttributePill
-                              key={opt.value}
-                              label={opt.label}
-                              selected={Array.isArray(localAttrs[room.id].bedding) ? localAttrs[room.id].bedding.includes(opt.value) : localAttrs[room.id].bedding === opt.value}
-                              onClick={() => {
-                                setLocalAttrs((prev) => {
-                                  const current = Array.isArray(prev[room.id].bedding) ? prev[room.id].bedding : [prev[room.id].bedding]
-                                  const next = current.includes(opt.value)
-                                    ? current.filter((v) => v !== opt.value)
-                                    : [...current, opt.value]
-                                  return {
-                                    ...prev,
-                                    [room.id]: { ...prev[room.id], bedding: next.length > 0 ? next : current },
-                                  }
-                                })
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
 
-                      {/* View */}
-                      <div style={{ marginBottom: 14 }}>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: 'var(--color-text-secondary)',
-                            marginBottom: 8,
-                          }}
-                        >
-                          View
+                        {/* Floor */}
+                        <div style={{ marginBottom: 14 }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+                            Floor
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {FLOOR_OPTIONS.map((opt) => (
+                              <AttributePill
+                                key={opt.value}
+                                label={opt.label}
+                                selected={localAttrs[room.id].floor === opt.value}
+                                onClick={() => setAttr(room.id, 'floor', opt.value)}
+                              />
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {VIEW_OPTIONS.map((opt) => (
-                            <AttributePill
-                              key={opt.value}
-                              label={opt.label}
-                              selected={localAttrs[room.id].view === opt.value}
-                              onClick={() => setAttr(room.id, 'view', opt.value)}
-                            />
-                          ))}
-                        </div>
-                      </div>
 
-                      {/* Floor */}
-                      <div style={{ marginBottom: 14 }}>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: 'var(--color-text-secondary)',
-                            marginBottom: 8,
-                          }}
-                        >
-                          Floor
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {FLOOR_OPTIONS.map((opt) => (
-                            <AttributePill
-                              key={opt.value}
-                              label={opt.label}
-                              selected={localAttrs[room.id].floor === opt.value}
-                              onClick={() => setAttr(room.id, 'floor', opt.value)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Extras */}
-                      <div style={{ marginBottom: 20 }}>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: 'var(--color-text-secondary)',
-                            marginBottom: 8,
-                          }}
-                        >
-                          Extras
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {EXTRA_OPTIONS.map((opt) => (
-                            <AttributePill
-                              key={opt.value}
-                              label={opt.label}
-                              selected={localAttrs[room.id].extras[opt.value]}
-                              onClick={() => toggleExtra(room.id, opt.value)}
-                            />
-                          ))}
+                        {/* Pillows */}
+                        <div style={{ marginBottom: 20 }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+                            Pillow menu
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {PILLOW_OPTIONS.map((opt) => (
+                              <AttributePill
+                                key={opt.value}
+                                label={opt.label}
+                                selected={localAttrs[room.id].pillows === opt.value}
+                                onClick={() => setAttr(room.id, 'pillows', opt.value)}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
 

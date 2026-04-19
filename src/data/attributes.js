@@ -19,8 +19,8 @@ export const attributes = [
     emoji: '👥',
     type: 'select',
     options: [
-      { value: 1, label: '1 guest',  emoji: '🙋', priceDelta: 0 },
-      { value: 2, label: '2 guests', emoji: '👫', priceDelta: 15 },
+      { value: 2, label: '2 guests', emoji: '👫', priceDelta: 0 },
+      { value: 4, label: '4 guests', emoji: '👨‍👩‍👧‍👦', priceDelta: 30 },
     ],
   },
 
@@ -142,16 +142,6 @@ export const attributes = [
   },
 
   // ── Requirements ────────────────────────────────────────────────
-  {
-    id: 'smoking',
-    label: 'Smoking policy',
-    emoji: '🚭',
-    type: 'toggle',
-    options: [
-      { value: false, label: 'Non-smoking', emoji: '🚭', priceDelta: null },
-      { value: true,  label: 'Smoking',     emoji: '🚬', priceDelta: null },
-    ],
-  },
   {
     id: 'accessibility',
     label: 'Accessibility',

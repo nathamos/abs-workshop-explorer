@@ -21,10 +21,6 @@ const sectionGroups = [
     label: 'YOUR BATHROOM & LIVING SPACE',
     ids: ['bathroom', 'livingArea', 'kitchen', 'laundry'],
   },
-  {
-    label: 'ROOM REQUIREMENTS',
-    ids: ['smoking'],
-  },
 ]
 
 

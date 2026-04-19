@@ -12,14 +12,13 @@ export default function FlowBIndex({ priced = false }) {
   const [selectedAttributes, setSelectedAttributes] = useState({
     bedding: ['king'],
     pillows: 'standard',
-    floor: 'low',
-    view: 'courtyard',
+    floor: 'mid',
+    view: 'city',
     balcony: false,
     bathroom: 'shower',
     livingArea: false,
     kitchen: false,
     laundry: false,
-    smoking: false,
     accessibility: false,
   })
   const [selectedServices, setSelectedServices] = useState(defaultSelectedServices)
