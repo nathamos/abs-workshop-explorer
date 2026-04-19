@@ -6,7 +6,7 @@ import AttributePill from '../../components/shared/AttributePill'
 
 // ─── Module-level helpers ────────────────────────────────────────────────────
 
-const TIME_LABELS = { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening' }
+const STANDARD_IDS = new Set(['daily-breakfast', 'daily-housekeeping', 'gym-access'])
 
 function buildServiceMap() {
   const map = {}
@@ -107,7 +107,8 @@ export default function Trip() {
   }
 
   // ── Itinerary summary ────────────────────────────────────────────────────
-  const totalItems = myServices.length
+  const userAddedServices = myServices.filter((s) => !STANDARD_IDS.has(s.id))
+  const totalItems = userAddedServices.length
 
   // ── Pricing ──────────────────────────────────────────────────────────────
   const nights = bookingContext.nights
@@ -383,7 +384,7 @@ export default function Trip() {
         {/* Day + item rows */}
         <div style={{ borderTop: '1px solid var(--color-border)' }}>
           {stayDays.map((dayIdx) => {
-            const dayServices = myServices.filter((s) => s.day === dayIdx)
+            const dayServices = userAddedServices.filter((s) => s.day === dayIdx)
             return (
               <div key={dayIdx} style={{ borderBottom: '1px solid var(--color-border)' }}>
                 {/* Day label */}
@@ -421,7 +422,7 @@ export default function Trip() {
                           <span style={{ fontSize: 13, color: 'var(--color-text-primary)' }}>{svc.name}</span>
                         </div>
                         <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
-                          {TIME_LABELS[time]}
+                          {time}
                         </span>
                       </div>
                     )

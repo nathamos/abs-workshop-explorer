@@ -138,6 +138,7 @@ export default function Confirmation() {
           ← Back
         </button>
         <button
+          onClick={() => navigate('/complete')}
           className="text-sm font-semibold px-6 py-3 text-white"
           style={{
             borderRadius: 'var(--radius-md)',

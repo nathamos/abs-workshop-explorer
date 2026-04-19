@@ -27,12 +27,16 @@ import FlowEItinerary from './flows/flow-e/Itinerary'
 import FlowEConfirmation from './flows/flow-e/Confirmation'
 
 import Home from './Home'
+import HotelSelection from './HotelSelection'
+import Complete from './Complete'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HotelSelection />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/complete" element={<Complete />} />
 
         <Route path="/flow-a" element={<FlowAIndex />}>
           <Route index element={<Navigate to="rooms" replace />} />

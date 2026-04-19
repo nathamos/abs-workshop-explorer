@@ -228,6 +228,7 @@ export default function Confirmation() {
       {/* Navigation actions */}
       <div className="flex flex-col gap-3">
         <button
+          onClick={() => navigate('/complete')}
           className="w-full text-base font-semibold text-white transition-opacity hover:opacity-90"
           style={{
             background: 'var(--color-text-primary)',

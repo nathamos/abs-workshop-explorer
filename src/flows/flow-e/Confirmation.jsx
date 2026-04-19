@@ -1,6 +1,5 @@
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import { serviceCategories } from '../../data/services'
-import { SERVICE_TIMING } from './serviceTiming'
 
 function buildServiceMap() {
   const map = {}
@@ -11,11 +10,7 @@ function buildServiceMap() {
 }
 const SERVICE_MAP = buildServiceMap()
 
-const TIME_SLOTS = [
-  { id: 'morning',   label: 'Morning'   },
-  { id: 'afternoon', label: 'Afternoon' },
-  { id: 'evening',   label: 'Evening'   },
-]
+const STANDARD_IDS = new Set(['daily-breakfast', 'daily-housekeeping', 'gym-access'])
 
 function attrLabel(key, value) {
   const maps = {
@@ -37,8 +32,9 @@ export default function Confirmation() {
   const checkInLabel  = checkIn.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
   const checkOutLabel = checkOut.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 
+  const userServices  = myServices.filter((s) => !STANDARD_IDS.has(s.id))
   const roomTotal     = selectedRoom ? selectedRoom.basePricePerNight * nights : 0
-  const servicesTotal = myServices.reduce((sum, { id }) => sum + (SERVICE_MAP[id]?.price || 0), 0)
+  const servicesTotal = userServices.reduce((sum, { id }) => sum + (SERVICE_MAP[id]?.price || 0), 0)
   const grandTotal    = roomTotal + servicesTotal
 
   // Build day structure matching itinerary
@@ -113,104 +109,111 @@ export default function Confirmation() {
         </div>
       </div>
 
-      {/* Itinerary — grouped by day × time */}
-      {myServices.length > 0 && (
-        <div style={cardStyle}>
-          <div style={{ padding: '16px 20px 12px' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-tertiary)' }}>
-              Your itinerary
-            </div>
+      {/* Itinerary */}
+      <div style={cardStyle}>
+        <div style={{ padding: '16px 20px 12px' }}>
+          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-tertiary)' }}>
+            Your itinerary
           </div>
+        </div>
 
-          {allDays.map(({ dayIndex, isCheckout, shortLabel }) => {
-            const timeSlotsForDay = isCheckout
-              ? TIME_SLOTS.filter((t) => t.id === 'morning')
-              : TIME_SLOTS
+        {/* Standard inclusions band */}
+        <div
+          style={{
+            margin: '0 16px 12px',
+            background: 'var(--color-teal-light)',
+            border: '1px solid var(--color-teal)',
+            borderRadius: 'var(--radius-md)',
+            padding: '10px 14px',
+          }}
+        >
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-teal)', marginBottom: 8 }}>
+            Included every night
+          </div>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            {['daily-breakfast', 'daily-housekeeping', 'gym-access'].map((id) => {
+              const svc = SERVICE_MAP[id]
+              if (!svc) return null
+              return (
+                <span key={id} style={{ fontSize: 12, color: 'var(--color-teal)', fontWeight: 500 }}>
+                  {svc.emoji} {svc.name}
+                </span>
+              )
+            })}
+          </div>
+        </div>
 
-            const dayHasItems = myServices.some((s) => s.day === dayIndex)
-            if (!dayHasItems) return null
+        {/* User-added services by day */}
+        {allDays.map(({ dayIndex, isCheckout, shortLabel }) => {
+          const dayServices = userServices
+            .filter((s) => s.day === dayIndex)
+            .sort((a, b) => {
+              const times = ['6:00 AM','7:00 AM','8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM','8:00 PM','9:00 PM','10:00 PM']
+              return times.indexOf(a.time) - times.indexOf(b.time)
+            })
+          if (dayServices.length === 0) return null
 
-            return (
-              <div key={dayIndex}>
-                {/* Day header */}
-                <div
-                  style={{
-                    padding: '8px 20px',
-                    background: 'var(--color-surface-alt)',
-                    borderTop: '1px solid var(--color-border)',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: 'var(--color-text-tertiary)',
-                  }}
-                >
-                  {isCheckout ? `Check-out · ${shortLabel}` : shortLabel}
-                </div>
+          return (
+            <div key={dayIndex}>
+              <div
+                style={{
+                  padding: '8px 20px',
+                  background: 'var(--color-surface-alt)',
+                  borderTop: '1px solid var(--color-border)',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-text-tertiary)',
+                }}
+              >
+                {isCheckout ? `Check-out · ${shortLabel}` : shortLabel}
+              </div>
 
-                {timeSlotsForDay.map((slot) => {
-                  const slotServices = myServices.filter(
-                    (s) => s.day === dayIndex && s.time === slot.id
-                  )
-                  if (slotServices.length === 0) return null
-
-                  return (
-                    <div key={slot.id}>
+              {dayServices.map(({ id, day, time }) => {
+                const svc = SERVICE_MAP[id]
+                if (!svc) return null
+                return (
+                  <div
+                    key={`${id}-${day}-${time}`}
+                    className="flex items-center justify-between"
+                    style={{ padding: '9px 20px', borderTop: '1px solid var(--color-border)' }}
+                  >
+                    <div className="flex items-center gap-3">
                       <div
                         style={{
-                          padding: '8px 20px 4px',
-                          borderTop: '1px solid var(--color-border)',
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: 'var(--color-text-tertiary)',
-                          letterSpacing: '0.04em',
+                          width: 30,
+                          height: 30,
+                          borderRadius: 'var(--radius-sm)',
+                          background: 'var(--color-surface-alt)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 14,
+                          flexShrink: 0,
                         }}
                       >
-                        {slot.label}
+                        {svc.emoji}
                       </div>
-                      {slotServices.map(({ id, day, time }) => {
-                        const svc = SERVICE_MAP[id]
-                        if (!svc) return null
-                        return (
-                          <div
-                            key={`${id}-${day}-${time}`}
-                            className="flex items-center justify-between"
-                            style={{ padding: '9px 20px 9px 36px', borderTop: '1px solid var(--color-border)' }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                style={{
-                                  width: 30,
-                                  height: 30,
-                                  borderRadius: 'var(--radius-sm)',
-                                  background: 'var(--color-surface-alt)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: 14,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {svc.emoji}
-                              </div>
-                              <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
-                                {svc.name}
-                              </span>
-                            </div>
-                            <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', flexShrink: 0, marginLeft: 12 }}>
-                              {svc.price === 0 ? 'Incl.' : `+SGD ${svc.price}`}
-                            </span>
-                          </div>
-                        )
-                      })}
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                          {svc.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{time}</div>
+                      </div>
                     </div>
-                  )
-                })}
-              </div>
-            )
-          })}
-        </div>
-      )}
+                    <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', flexShrink: 0, marginLeft: 12 }}>
+                      {svc.price === 0 ? 'Incl.' : `+SGD ${svc.price}`}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
+
+        <div style={{ height: 4 }} />
+      </div>
 
       {/* Price breakdown */}
       <div
@@ -235,7 +238,7 @@ export default function Confirmation() {
           {servicesTotal > 0 && (
             <div className="flex items-center justify-between">
               <span style={{ fontSize: 14, color: 'var(--color-text-secondary)' }}>
-                Itinerary add-ons ({myServices.length} items)
+                Itinerary add-ons ({userServices.length} item{userServices.length !== 1 ? 's' : ''})
               </span>
               <span style={{ fontSize: 14, color: 'var(--color-text-primary)' }}>SGD {servicesTotal}</span>
             </div>
@@ -252,6 +255,7 @@ export default function Confirmation() {
 
       {/* Actions */}
       <button
+        onClick={() => navigate('/complete')}
         style={{
           width: '100%',
           background: 'var(--color-text-primary)',

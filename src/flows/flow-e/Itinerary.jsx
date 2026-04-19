@@ -2,9 +2,6 @@ import { useState } from 'react'
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { serviceCategories } from '../../data/services'
-import { SERVICE_TIMING } from './serviceTiming'
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
 
 function buildServiceMap() {
   const map = {}
@@ -15,33 +12,38 @@ function buildServiceMap() {
 }
 const SERVICE_MAP = buildServiceMap()
 
-const TIME_SLOTS = [
-  { id: 'morning',   label: 'Morning',   emoji: '🌅' },
-  { id: 'afternoon', label: 'Afternoon', emoji: '☀️' },
-  { id: 'evening',   label: 'Evening',   emoji: '🌙' },
+const STANDARD_IDS = new Set(['daily-breakfast', 'daily-housekeeping', 'gym-access'])
+
+const TIME_OPTIONS = [
+  '6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM',
+  '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM',
+  '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM',
 ]
 
-// ─── Service Sheet ───────────────────────────────────────────────────────────
-// Opens when a "+" is tapped. Adds selected service to the chosen day+time slot.
+const CHECK_IN_TIME  = '3:00 PM'
+const CHECK_OUT_TIME = '12:00 PM'
 
-function ServiceSheet({ slot, myServices, onAdd, onClose }) {
-  const [openCat, setOpenCat] = useState(null)
+// ─── Service Sheet ────────────────────────────────────────────────────────────
+// 2-step sheet: pick a service → pick a time
 
-  // Already-added IDs for this slot
-  const slotIds = new Set(
-    myServices.filter((s) => s.day === slot.day && s.time === slot.time).map((s) => s.id)
-  )
+function ServiceSheet({ dayLabel, onAdd, onClose }) {
+  const [step, setStep]               = useState('pick-service')
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [selectedTime, setSelectedTime] = useState('9:00 AM')
+  const [openCat, setOpenCat]         = useState(null)
 
-  function handleToggle(item) {
-    if (slotIds.has(item.id)) {
-      // Remove from this slot
-      onAdd(item, 'remove')
-    } else {
-      onAdd(item, 'add')
-    }
+  function handleSelectItem(item) {
+    setSelectedItem(item)
+    setSelectedTime('9:00 AM')
+    setStep('pick-time')
   }
 
-  const timeLabel = TIME_SLOTS.find((t) => t.id === slot.time)?.label ?? slot.time
+  function handleConfirm() {
+    onAdd(selectedItem, selectedTime)
+    // Return to service list so the user can keep adding
+    setStep('pick-service')
+    setSelectedItem(null)
+  }
 
   return (
     <div
@@ -69,169 +71,303 @@ function ServiceSheet({ slot, myServices, onAdd, onClose }) {
         {/* Handle */}
         <div style={{ width: 40, height: 4, background: 'var(--color-border)', borderRadius: 2, margin: '16px auto 0', flexShrink: 0 }} />
 
-        {/* Header */}
-        <div className="flex items-center justify-between" style={{ padding: '14px 20px 12px', flexShrink: 0 }}>
-          <div>
-            <div style={{ fontSize: 17, fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}>
-              Add to {slot.dayLabel}
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 2 }}>
-              {timeLabel} · tap to add or remove
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'var(--color-teal)',
-              color: '#fff',
-              fontSize: 13,
-              fontWeight: 600,
-              padding: '8px 18px',
-              borderRadius: 'var(--radius-full)',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Done
-          </button>
-        </div>
-
-        {/* Categories */}
-        <div style={{ overflowY: 'auto', flex: 1 }}>
-          {serviceCategories.map((cat) => {
-            const isOpen = openCat === cat.id
-            return (
-              <div key={cat.id} style={{ borderTop: '1px solid var(--color-border)' }}>
-                <button
-                  onClick={() => setOpenCat(isOpen ? null : cat.id)}
-                  className="w-full text-left flex items-center justify-between"
-                  style={{ padding: '13px 20px', background: 'transparent', border: 'none', cursor: 'pointer' }}
-                >
-                  <div className="flex items-center gap-2">
-                    <span style={{ fontSize: 15 }}>{cat.emoji}</span>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)' }}>{cat.label}</span>
+        <AnimatePresence mode="wait" initial={false}>
+          {step === 'pick-service' ? (
+            // ── Step 1: pick a service ──────────────────────────────────────
+            <motion.div
+              key="pick-service"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}
+            >
+              <div className="flex items-center justify-between" style={{ padding: '14px 20px 12px', flexShrink: 0 }}>
+                <div>
+                  <div style={{ fontSize: 17, fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}>
+                    Add to {dayLabel}
                   </div>
-                  <motion.span
-                    animate={{ rotate: isOpen ? 90 : 0 }}
-                    transition={{ duration: 0.18 }}
-                    style={{ display: 'inline-block', color: 'var(--color-text-tertiary)', fontSize: 18 }}
-                  >
-                    ›
-                  </motion.span>
+                  <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 2 }}>
+                    Select an activity or service
+                  </div>
+                </div>
+                <button
+                  onClick={onClose}
+                  style={{
+                    background: 'var(--color-surface-alt)',
+                    color: 'var(--color-text-secondary)',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    padding: '8px 18px',
+                    borderRadius: 'var(--radius-full)',
+                    border: '1px solid var(--color-border)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Close
                 </button>
-
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2, ease: 'easeInOut' }}
-                      style={{ overflow: 'hidden' }}
-                    >
-                      {cat.items.map((item) => {
-                        const isAdded = slotIds.has(item.id)
-                        return (
-                          <button
-                            key={item.id}
-                            onClick={() => handleToggle(item)}
-                            className="w-full text-left flex items-start justify-between"
-                            style={{
-                              padding: '11px 20px 11px 44px',
-                              background: isAdded ? 'var(--color-teal-light)' : 'transparent',
-                              border: 'none',
-                              borderTop: '1px solid var(--color-border)',
-                              cursor: 'pointer',
-                              transition: 'background 0.15s ease',
-                            }}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div
-                                style={{
-                                  width: 34,
-                                  height: 34,
-                                  borderRadius: 'var(--radius-md)',
-                                  background: isAdded ? '#fff' : 'var(--color-surface-alt)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: 16,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {item.emoji}
-                              </div>
-                              <div>
-                                <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 2 }}>
-                                  {item.name}
-                                </div>
-                                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
-                                  {item.description}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0 ml-3 mt-1">
-                              <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
-                                {item.price === 0 ? 'Incl.' : `+SGD ${item.price}`}
-                              </span>
-                              <div
-                                style={{
-                                  width: 22,
-                                  height: 22,
-                                  borderRadius: '50%',
-                                  border: isAdded ? '1.5px solid var(--color-teal)' : '1.5px solid var(--color-border)',
-                                  background: isAdded ? 'var(--color-teal)' : 'transparent',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  color: '#fff',
-                                  fontSize: 12,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {isAdded ? '✓' : ''}
-                              </div>
-                            </div>
-                          </button>
-                        )
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
-            )
-          })}
-          <div style={{ height: 32 }} />
-        </div>
+
+              <div style={{ overflowY: 'auto', flex: 1 }}>
+                {serviceCategories.map((cat) => {
+                  const isOpen = openCat === cat.id
+                  // Filter standard inclusions from the add sheet
+                  const items = cat.items.filter((item) => !STANDARD_IDS.has(item.id))
+                  if (items.length === 0) return null
+                  return (
+                    <div key={cat.id} style={{ borderTop: '1px solid var(--color-border)' }}>
+                      <button
+                        onClick={() => setOpenCat(isOpen ? null : cat.id)}
+                        className="w-full text-left flex items-center justify-between"
+                        style={{ padding: '13px 20px', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span style={{ fontSize: 15 }}>{cat.emoji}</span>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)' }}>{cat.label}</span>
+                        </div>
+                        <motion.span
+                          animate={{ rotate: isOpen ? 90 : 0 }}
+                          transition={{ duration: 0.18 }}
+                          style={{ display: 'inline-block', color: 'var(--color-text-tertiary)', fontSize: 18 }}
+                        >
+                          ›
+                        </motion.span>
+                      </button>
+
+                      <AnimatePresence initial={false}>
+                        {isOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: 'easeInOut' }}
+                            style={{ overflow: 'hidden' }}
+                          >
+                            {items.map((item) => (
+                              <button
+                                key={item.id}
+                                onClick={() => handleSelectItem(item)}
+                                className="w-full text-left flex items-start justify-between"
+                                style={{
+                                  padding: '11px 20px 11px 44px',
+                                  background: 'transparent',
+                                  border: 'none',
+                                  borderTop: '1px solid var(--color-border)',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div
+                                    style={{
+                                      width: 34,
+                                      height: 34,
+                                      borderRadius: 'var(--radius-md)',
+                                      background: 'var(--color-surface-alt)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontSize: 16,
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    {item.emoji}
+                                  </div>
+                                  <div>
+                                    <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 2 }}>
+                                      {item.name}
+                                    </div>
+                                    <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                                      {item.description}
+                                    </div>
+                                  </div>
+                                </div>
+                                <span style={{ fontSize: 13, color: 'var(--color-text-secondary)', whiteSpace: 'nowrap', marginLeft: 12, marginTop: 4, flexShrink: 0 }}>
+                                  {item.price === 0 ? 'Incl.' : `+SGD ${item.price}`}
+                                </span>
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )
+                })}
+                <div style={{ height: 32 }} />
+              </div>
+            </motion.div>
+          ) : (
+            // ── Step 2: pick a time ─────────────────────────────────────────
+            <motion.div
+              key="pick-time"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}
+            >
+              <div style={{ padding: '14px 20px 12px', flexShrink: 0 }}>
+                <button
+                  onClick={() => { setStep('pick-service'); setSelectedItem(null) }}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--color-text-tertiary)', padding: 0, marginBottom: 10, display: 'block' }}
+                >
+                  ← Back
+                </button>
+                <div style={{ fontSize: 17, fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}>
+                  What time?
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 2 }}>
+                  {selectedItem?.name} · {dayLabel}
+                </div>
+              </div>
+
+              {/* Selected service preview */}
+              <div style={{ margin: '0 20px 16px', padding: '12px 14px', background: 'var(--color-surface-alt)', borderRadius: 'var(--radius-md)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 22 }}>{selectedItem?.emoji}</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)' }}>{selectedItem?.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                    {selectedItem?.price === 0 ? 'Included' : `+SGD ${selectedItem?.price}`}
+                  </div>
+                </div>
+              </div>
+
+              {/* Time grid */}
+              <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingBottom: 16 }}>
+                  {TIME_OPTIONS.map((t) => {
+                    const isSelected = selectedTime === t
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => setSelectedTime(t)}
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: 'var(--radius-full)',
+                          border: isSelected ? '1.5px solid var(--color-teal)' : '1.5px solid var(--color-border)',
+                          background: isSelected ? 'var(--color-teal-light)' : 'transparent',
+                          color: isSelected ? 'var(--color-teal)' : 'var(--color-text-secondary)',
+                          fontSize: 13,
+                          fontWeight: isSelected ? 600 : 400,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {t}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div style={{ padding: '16px 20px', borderTop: '1px solid var(--color-border)', flexShrink: 0 }}>
+                <button
+                  onClick={handleConfirm}
+                  style={{
+                    width: '100%',
+                    background: 'var(--color-teal)',
+                    color: '#fff',
+                    fontSize: 15,
+                    fontWeight: 600,
+                    padding: '14px',
+                    borderRadius: 'var(--radius-md)',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Add at {selectedTime}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   )
 }
 
-// ─── Main component ──────────────────────────────────────────────────────────
+// ─── Timeline row ─────────────────────────────────────────────────────────────
+
+function TimelineRow({ time, label, emoji, price, isHighlighted, showLine, onRemove }) {
+  const dotSize = isHighlighted ? 11 : 9
+
+  return (
+    <div style={{ display: 'flex', gap: 16 }}>
+      {/* Left: dot + connecting line */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 20, flexShrink: 0 }}>
+        <div
+          style={{
+            width: dotSize,
+            height: dotSize,
+            borderRadius: '50%',
+            background: isHighlighted ? 'var(--color-teal)' : 'var(--color-border)',
+            marginTop: isHighlighted ? 14 : 15,
+            flexShrink: 0,
+          }}
+        />
+        {showLine && (
+          <div style={{ flex: 1, width: 1.5, background: 'var(--color-border)', minHeight: 10 }} />
+        )}
+      </div>
+
+      {/* Right: content */}
+      <div style={{ flex: 1, paddingBottom: showLine ? 20 : 4, paddingTop: 0 }}>
+        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: isHighlighted ? 12 : 13, marginBottom: 2 }}>
+          {time}
+        </div>
+        {isHighlighted ? (
+          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-primary)' }}>{label}</div>
+        ) : (
+          <div className="flex items-start justify-between" style={{ gap: 8 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 2 }}>
+                {emoji && <span style={{ marginRight: 5 }}>{emoji}</span>}{label}
+              </div>
+              {price !== undefined && (
+                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                  {price === 0 ? 'Included' : `+SGD ${price}`}
+                </div>
+              )}
+            </div>
+            {onRemove && (
+              <button
+                onClick={onRemove}
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: '50%',
+                  border: '1px solid var(--color-border)',
+                  background: 'var(--color-surface-alt)',
+                  color: 'var(--color-text-tertiary)',
+                  fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function Itinerary() {
   const { myServices, setters, bookingContext } = useOutletContext()
   const navigate = useNavigate()
 
-  // pickerSlot: { day, time, dayLabel } | null
-  const [pickerSlot, setPickerSlot] = useState(null)
+  const [pickerDay, setPickerDay] = useState(null) // { day, dayLabel } | null
 
-  function openPicker(day, time, dayLabel) {
-    setPickerSlot({ day, time, dayLabel })
-  }
-
-  function handleServiceToggle(item, action) {
-    if (action === 'add') {
-      setters.setMyServices((prev) => [
-        ...prev,
-        { id: item.id, day: pickerSlot.day, time: pickerSlot.time },
-      ])
-    } else {
-      setters.setMyServices((prev) =>
-        prev.filter((s) => !(s.id === item.id && s.day === pickerSlot.day && s.time === pickerSlot.time))
-      )
-    }
+  function handleServiceAdd(item, time) {
+    setters.setMyServices((prev) => [
+      ...prev,
+      { id: item.id, day: pickerDay.day, time },
+    ])
   }
 
   function removeService(id, day, time) {
@@ -240,11 +376,9 @@ export default function Itinerary() {
     )
   }
 
-  // ── Dates ────────────────────────────────────────────────────────────────
   const checkIn = new Date(bookingContext.checkIn)
   const nights  = bookingContext.nights
 
-  // Build all itinerary days: stay nights + check-out day
   const allDays = Array.from({ length: nights + 1 }, (_, i) => {
     const d = new Date(checkIn)
     d.setDate(d.getDate() + i)
@@ -252,9 +386,19 @@ export default function Itinerary() {
     return {
       dayIndex: i,
       isCheckout,
-      fullLabel: d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }),
+      fullLabel:  d.toLocaleDateString('en-GB', { weekday: 'long',  day: 'numeric', month: 'long'  }),
       shortLabel: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }),
     }
+  })
+
+  // Collect distinct standard inclusions for the band
+  const standardInclusions = []
+  serviceCategories.forEach((cat) => {
+    cat.items.forEach((item) => {
+      if (STANDARD_IDS.has(item.id) && !standardInclusions.find((i) => i.id === item.id)) {
+        standardInclusions.push(item)
+      }
+    })
   })
 
   return (
@@ -277,170 +421,108 @@ export default function Itinerary() {
         </p>
       </div>
 
-      {/* Day blocks */}
+      {/* Standard Inclusions band */}
+      <div
+        style={{
+          background: 'var(--color-teal-light)',
+          border: '1px solid var(--color-teal)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '14px 16px',
+          marginBottom: 32,
+        }}
+      >
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-teal)', marginBottom: 10 }}>
+          Included with every night
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {standardInclusions.map((item) => (
+            <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 14 }}>{item.emoji}</span>
+              <span style={{ fontSize: 13, color: 'var(--color-teal)', fontWeight: 500 }}>{item.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Day sections */}
       {allDays.map(({ dayIndex, isCheckout, fullLabel, shortLabel }) => {
-        // Check-out only shows morning
-        const timeSlotsForDay = isCheckout
-          ? TIME_SLOTS.filter((t) => t.id === 'morning')
-          : TIME_SLOTS
+        // User-added services for this day, sorted chronologically
+        const userServices = myServices
+          .filter((s) => s.day === dayIndex && !STANDARD_IDS.has(s.id))
+          .sort((a, b) => TIME_OPTIONS.indexOf(a.time) - TIME_OPTIONS.indexOf(b.time))
+
+        // Build the ordered timeline rows for this day
+        const rows = []
+
+        if (dayIndex === 0) {
+          rows.push({ key: 'checkin', type: 'event', time: CHECK_IN_TIME, label: 'Check-in' })
+        }
+
+        if (isCheckout) {
+          rows.push({ key: 'checkout', type: 'event', time: CHECK_OUT_TIME, label: 'Check-out' })
+        } else {
+          userServices.forEach((s) => {
+            const svc = SERVICE_MAP[s.id]
+            if (svc) {
+              rows.push({
+                key:   `${s.id}-${s.day}-${s.time}`,
+                type:  'service',
+                time:  s.time,
+                label: svc.name,
+                emoji: svc.emoji,
+                price: svc.price,
+                id:    s.id,
+                day:   s.day,
+              })
+            }
+          })
+        }
 
         return (
-          <div
-            key={dayIndex}
-            style={{
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-lg)',
-              overflow: 'hidden',
-              marginBottom: 12,
-            }}
-          >
+          <div key={dayIndex} style={{ marginBottom: 32 }}>
             {/* Day header */}
-            <div
-              style={{
-                padding: '12px 20px',
-                background: 'var(--color-surface-alt)',
-                borderBottom: '1px solid var(--color-border)',
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: 'var(--color-text-primary)',
-                }}
-              >
+            <div style={{ marginBottom: 10 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-tertiary)' }}>
                 {isCheckout ? `Check-out · ${shortLabel}` : fullLabel}
               </span>
             </div>
 
-            {/* Time slots */}
-            {timeSlotsForDay.map((slot, slotIdx) => {
-              const slotServices = myServices.filter(
-                (s) => s.day === dayIndex && s.time === slot.id
-              )
+            {/* Timeline rows */}
+            {rows.map((row, idx) => (
+              <TimelineRow
+                key={row.key}
+                time={row.time}
+                label={row.label}
+                emoji={row.emoji}
+                price={row.price}
+                isHighlighted={row.type === 'event'}
+                showLine={idx < rows.length - 1 || !isCheckout}
+                onRemove={row.type === 'service' ? () => removeService(row.id, row.day, row.time) : undefined}
+              />
+            ))}
 
-              return (
-                <div
-                  key={slot.id}
-                  style={{
-                    borderTop: slotIdx === 0 ? 'none' : '1px solid var(--color-border)',
-                  }}
-                >
-                  {/* Time slot header */}
-                  <div
-                    className="flex items-center justify-between"
-                    style={{ padding: '10px 20px 8px' }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span style={{ fontSize: 14 }}>{slot.emoji}</span>
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 600,
-                          color: 'var(--color-text-secondary)',
-                          letterSpacing: '0.04em',
-                        }}
-                      >
-                        {slot.label}
-                      </span>
-                    </div>
-                    {/* + button */}
-                    <button
-                      onClick={() => openPicker(dayIndex, slot.id, isCheckout ? `Check-out · ${shortLabel}` : shortLabel)}
-                      style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: '50%',
-                        border: '1.5px solid var(--color-teal)',
-                        background: 'var(--color-teal-light)',
-                        color: 'var(--color-teal)',
-                        fontSize: 18,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        lineHeight: 1,
-                        paddingBottom: 1,
-                      }}
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  {/* Service items */}
-                  {slotServices.length > 0 && (
-                    <div style={{ paddingBottom: 8 }}>
-                      {slotServices.map(({ id, day, time }) => {
-                        const svc = SERVICE_MAP[id]
-                        if (!svc) return null
-                        return (
-                          <div
-                            key={`${id}-${day}-${time}`}
-                            className="flex items-center justify-between"
-                            style={{ padding: '8px 20px 8px 48px' }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                style={{
-                                  width: 32,
-                                  height: 32,
-                                  borderRadius: 'var(--radius-sm)',
-                                  background: 'var(--color-surface-alt)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: 15,
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {svc.emoji}
-                              </div>
-                              <div>
-                                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>
-                                  {svc.name}
-                                </div>
-                                <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
-                                  {svc.price === 0 ? 'Included' : `+SGD ${svc.price}`}
-                                </div>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => removeService(id, day, time)}
-                              style={{
-                                width: 22,
-                                height: 22,
-                                borderRadius: '50%',
-                                border: '1px solid var(--color-border)',
-                                background: 'var(--color-surface-alt)',
-                                color: 'var(--color-text-tertiary)',
-                                fontSize: 14,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                flexShrink: 0,
-                              }}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Empty state hint */}
-                  {slotServices.length === 0 && (
-                    <div style={{ padding: '2px 20px 12px 48px', fontSize: 12, color: 'var(--color-text-tertiary)' }}>
-                      Nothing added yet
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+            {/* Add CTA (not on checkout day) */}
+            {!isCheckout && (
+              <button
+                onClick={() => setPickerDay({ day: dayIndex, dayLabel: shortLabel })}
+                className="flex items-center"
+                style={{
+                  gap: 10,
+                  marginTop: userServices.length > 0 ? 8 : 12,
+                  background: 'transparent',
+                  border: '1px dashed var(--color-teal)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '10px 16px',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+              >
+                <span style={{ color: 'var(--color-teal)', fontSize: 18, lineHeight: 1, flexShrink: 0 }}>+</span>
+                <span style={{ fontSize: 13, color: 'var(--color-teal)', fontWeight: 600 }}>
+                  {userServices.length > 0 ? 'Add another activity' : 'Add an activity or service'}
+                </span>
+              </button>
+            )}
           </div>
         )
       })}
@@ -468,12 +550,11 @@ export default function Itinerary() {
 
       {/* Service picker sheet */}
       <AnimatePresence>
-        {pickerSlot && (
+        {pickerDay && (
           <ServiceSheet
-            slot={pickerSlot}
-            myServices={myServices}
-            onAdd={handleServiceToggle}
-            onClose={() => setPickerSlot(null)}
+            dayLabel={pickerDay.dayLabel}
+            onAdd={handleServiceAdd}
+            onClose={() => setPickerDay(null)}
           />
         )}
       </AnimatePresence>

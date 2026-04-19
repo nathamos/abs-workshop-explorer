@@ -182,6 +182,7 @@ export default function Confirmation() {
             </div>
 
             <button
+              onClick={() => navigate('/complete')}
               className="w-full text-sm font-semibold text-white mt-5 transition-opacity hover:opacity-90"
               style={{
                 background: 'var(--color-text-primary)',

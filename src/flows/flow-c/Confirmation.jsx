@@ -299,6 +299,7 @@ export default function Confirmation() {
 
       {/* Actions */}
       <button
+        onClick={() => navigate('/complete')}
         style={{
           width: '100%',
           background: 'var(--color-text-primary)',
