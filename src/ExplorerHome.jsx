@@ -61,9 +61,9 @@ function ConceptCard({ concept, accentColor }) {
   return (
     <div
       style={{
-        background: '#fff',
-        borderRadius: 12,
-        border: '1px solid #e5e7eb',
+        background: 'var(--color-surface)',
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid var(--color-border)',
         padding: 24,
         display: 'flex',
         flexDirection: 'column',
@@ -73,25 +73,25 @@ function ConceptCard({ concept, accentColor }) {
     >
       <div
         style={{
-          background: '#d1d5db',
-          borderRadius: 8,
+          background: 'var(--color-surface-alt)',
+          borderRadius: 'var(--radius-sm)',
           height: 110,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 13,
-          color: '#6b7280',
-          border: '1px solid #9ca3af',
+          color: 'var(--color-text-tertiary)',
+          border: '1px solid var(--color-border)',
         }}
       >
         Concept Card
       </div>
 
-      <p style={{ fontWeight: 700, fontSize: 14, color: '#000', margin: 0 }}>
+      <p style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text-primary)', margin: 0 }}>
         {concept.title}
       </p>
 
-      <p style={{ fontSize: 13, color: '#374151', margin: 0, lineHeight: 1.6 }}>
+      <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.6 }}>
         {concept.description}
       </p>
 
@@ -102,13 +102,14 @@ function ConceptCard({ concept, accentColor }) {
           background: accentColor,
           color: '#fff',
           border: 'none',
-          borderRadius: 9999,
+          borderRadius: 'var(--radius-full)',
           padding: '14px 20px',
-          fontWeight: 700,
+          fontWeight: 600,
           fontSize: 15,
           cursor: disabled ? 'default' : 'pointer',
           width: '100%',
           marginTop: 'auto',
+          fontFamily: 'var(--font-body)',
         }}
       >
         {disabled ? 'Coming soon' : 'Go →'}
@@ -121,12 +122,21 @@ function Section({ title, concepts, accentColor }) {
   return (
     <section style={{ marginBottom: 72 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 40 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, color: '#000', whiteSpace: 'nowrap', margin: 0 }}>
+        <h2
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 22,
+            color: 'var(--color-text-primary)',
+            whiteSpace: 'nowrap',
+            margin: 0,
+            fontWeight: 400,
+          }}
+        >
           {title}
         </h2>
         <div style={{ flex: 1, height: 2, background: accentColor }} />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
         {concepts.map(concept => (
           <ConceptCard key={concept.id} concept={concept} accentColor={accentColor} />
         ))}
@@ -137,13 +147,24 @@ function Section({ title, concepts, accentColor }) {
 
 export default function ExplorerHome() {
   return (
-    <div style={{ minHeight: '100vh', background: '#fff', padding: '72px 80px 100px' }}>
-      <h1 style={{ fontSize: 48, fontWeight: 800, color: '#000', marginBottom: 80, lineHeight: 1.1 }}>
-        Play with The UI/UX Options
-      </h1>
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '72px 48px 100px' }}>
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 48,
+            fontWeight: 400,
+            color: 'var(--color-text-primary)',
+            marginBottom: 72,
+            lineHeight: 1.1,
+          }}
+        >
+          Play with The UI/UX Options
+        </h1>
 
-      <Section title="Select Room" concepts={roomConcepts} accentColor="#7c3aed" />
-      <Section title="Services / Add-Ons" concepts={serviceConcepts} accentColor="#22c55e" />
+        <Section title="Select Room" concepts={roomConcepts} accentColor="#7c3aed" />
+        <Section title="Services / Add-Ons" concepts={serviceConcepts} accentColor="#22c55e" />
+      </div>
     </div>
   )
 }
