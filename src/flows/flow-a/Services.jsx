@@ -80,16 +80,7 @@ export default function Services() {
 
   return (
     <div style={{ paddingBottom: '120px' }}>
-      <button
-        onClick={() => navigate('/flow-a/rooms')}
-        className="text-sm mb-3"
-        style={{ color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-      >
-        ← Back
-      </button>
       <StepHeader
-        step={2}
-        totalSteps={3}
         title="Customise your stay"
         subtitle="Add services to your stay. Prices are per stay."
       />
@@ -149,8 +140,8 @@ export default function Services() {
         roomTotal={roomTotal}
         selectedServices={summaryServices}
         total={total}
-        onContinue={() => navigate('/flow-a/confirmation')}
-        ctaLabel="Continue to payment ↗"
+        onContinue={() => navigate('/')}
+        ctaLabel="Done — back to explorer ↗"
       />
     </div>
   )

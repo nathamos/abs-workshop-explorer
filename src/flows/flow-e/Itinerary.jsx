@@ -403,14 +403,6 @@ export default function Itinerary() {
 
   return (
     <div style={{ paddingBottom: 100 }}>
-      {/* Back */}
-      <button
-        onClick={() => navigate('/flow-e/trip')}
-        style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--color-text-tertiary)', padding: '0 0 20px', display: 'block' }}
-      >
-        ← Back to trip
-      </button>
-
       {/* Title */}
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontSize: 26, fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)', marginBottom: 4 }}>
@@ -530,7 +522,7 @@ export default function Itinerary() {
       {/* Done */}
       <div style={{ marginTop: 8 }}>
         <button
-          onClick={() => navigate('/flow-e/trip')}
+          onClick={() => navigate('/')}
           style={{
             width: '100%',
             background: 'var(--color-text-primary)',
@@ -544,7 +536,7 @@ export default function Itinerary() {
           }}
           className="transition-opacity hover:opacity-90"
         >
-          Done — back to trip
+          Done — back to explorer
         </button>
       </div>
 

@@ -56,7 +56,7 @@ export default function Recommendation() {
   function handleAccept() {
     setSelectedRoom(room)
     setSelectedBundleId(profileData.bundleName)
-    navigate('/flow-d/confirmation')
+    navigate('/')
   }
 
   if (!profile || !room) {

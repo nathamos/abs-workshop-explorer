@@ -99,7 +99,7 @@ export default function Services() {
   }
 
   function handleContinue() {
-    navigate('/flow-c/confirmation')
+    navigate('/')
   }
 
   // Build BookingSummary selectedServices
@@ -124,16 +124,7 @@ export default function Services() {
 
   return (
     <div style={{ paddingBottom: 160 }}>
-      <button
-        onClick={() => navigate('/flow-c/rooms')}
-        className="text-sm mb-3"
-        style={{ color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-      >
-        ← Back
-      </button>
       <StepHeader
-        step={2}
-        totalSteps={3}
         title="How does your stay sound?"
         subtitle="Choose a bundle, or continue with room only."
       />

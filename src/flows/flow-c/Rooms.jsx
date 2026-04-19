@@ -87,7 +87,7 @@ export default function Rooms() {
     setSelectedId(room.id)
     setExpandedId(null)
     setTimeout(() => {
-      navigate('/flow-c/services')
+      navigate('/')
     }, 400)
   }
 

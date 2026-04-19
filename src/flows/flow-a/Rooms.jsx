@@ -156,7 +156,7 @@ export default function Rooms() {
 
   function handleSelect(room) {
     setSelectedRoom(room)
-    navigate('/flow-a/services')
+    navigate('/')
   }
 
   const bedCount = getBedFilterCount()

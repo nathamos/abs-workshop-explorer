@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import StepHeader from '../../components/shared/StepHeader'
 import AttributePill from '../../components/shared/AttributePill'
@@ -29,10 +29,26 @@ const sectionGroups = [
 export default function Rooms() {
   const { selectedAttributes, setSelectedAttributes, setSelectedRoom, priced } = useOutletContext()
   const navigate = useNavigate()
+  const [showPrices, setShowPrices] = useState(priced)
 
   const matchedRoom = useMemo(() => findBestRoom(rooms, selectedAttributes), [selectedAttributes])
   const activeConflict = useMemo(() => getActiveConflictFn(conflicts, selectedAttributes), [selectedAttributes])
-  const roomTotal = matchedRoom.basePricePerNight * NIGHTS
+
+  const attributeDelta = useMemo(() => {
+    let delta = 0
+    for (const attr of attributes) {
+      if (attr.type === 'multiselect') continue
+      const selected = selectedAttributes[attr.id]
+      if (selected === undefined || selected === null) continue
+      const opt = attr.options.find((o) => o.value === selected)
+      if (opt?.priceDelta) delta += opt.priceDelta
+    }
+    return delta
+  }, [selectedAttributes])
+
+  const roomTotal = showPrices
+    ? (matchedRoom.basePricePerNight + attributeDelta) * NIGHTS
+    : matchedRoom.basePricePerNight * NIGHTS
 
   function handlePillClick(attrId, value) {
     if (attrId === 'bedding') {
@@ -52,7 +68,7 @@ export default function Rooms() {
   function handleBook() {
     if (activeConflict) return
     setSelectedRoom(matchedRoom)
-    navigate('../services')
+    navigate('/')
   }
 
   // Collect selected pills for display
@@ -84,12 +100,50 @@ export default function Rooms() {
       >
         {/* Left column — attribute checklist */}
         <div style={{ flex: '0 0 55%', paddingBottom: '120px' }}>
-          <StepHeader
-            step={1}
-            totalSteps={3}
-            title="Build your room"
-            subtitle="Choose the attributes that matter to you."
-          />
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 24 }}>
+            <div style={{ flex: 1 }}>
+              <StepHeader
+                step={1}
+                totalSteps={3}
+                title="Build your room"
+                subtitle="Choose the attributes that matter to you."
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 6, flexShrink: 0 }}>
+              <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                Show prices
+              </span>
+              <button
+                onClick={() => setShowPrices((p) => !p)}
+                style={{
+                  width: 38,
+                  height: 22,
+                  borderRadius: 11,
+                  border: 'none',
+                  background: showPrices ? 'var(--color-teal)' : 'var(--color-border)',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'background 0.2s',
+                  flexShrink: 0,
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: 3,
+                    left: showPrices ? 19 : 3,
+                    width: 16,
+                    height: 16,
+                    borderRadius: '50%',
+                    background: '#fff',
+                    transition: 'left 0.2s',
+                    display: 'block',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                  }}
+                />
+              </button>
+            </div>
+          </div>
 
           <div className="flex flex-col gap-8">
             {sectionGroups.map((group) => (
@@ -134,7 +188,7 @@ export default function Rooms() {
                               }
                               onClick={() => handlePillClick(attrId, opt.value)}
                               priceDelta={opt.priceDelta}
-                              showPrice={priced}
+                              showPrice={showPrices}
                             />
                           ))}
                         </div>

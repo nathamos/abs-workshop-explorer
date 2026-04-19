@@ -1,17 +1,35 @@
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { rooms } from '../../data/rooms'
 
-export default function FlowAIndex() {
+const DEFAULT_ATTRS = {
+  roomCategory: 'standard',
+  occupancy: 2,
+  bedding: ['king'],
+  pillows: 'standard',
+  floor: 'low',
+  view: 'courtyard',
+  balcony: false,
+  bathroom: 'shower',
+  livingArea: false,
+  kitchen: false,
+  laundry: false,
+  facilityAccess: 'room-only',
+  accessibility: false,
+}
+
+export default function FlowBudgetIndex() {
   const navigate = useNavigate()
-  const [selectedRoom, setSelectedRoom] = useState(rooms[0])
-  const [selectedServices, setSelectedServices] = useState([])
+  const [budget, setBudget] = useState(250) // per night, SGD
+  const [budgetMode, setBudgetMode] = useState('nightly')
+  const [selectedAttributes, setSelectedAttributes] = useState(DEFAULT_ATTRS)
 
   const flowState = {
-    selectedRoom,
-    setSelectedRoom,
-    selectedServices,
-    setSelectedServices,
+    budget,
+    setBudget,
+    budgetMode,
+    setBudgetMode,
+    selectedAttributes,
+    setSelectedAttributes,
   }
 
   return (
@@ -37,9 +55,7 @@ export default function FlowAIndex() {
         </svg>
         Exit
       </button>
-      <div className="max-w-[800px] mx-auto px-6 py-8">
-        <Outlet context={flowState} />
-      </div>
+      <Outlet context={flowState} />
     </div>
   )
 }

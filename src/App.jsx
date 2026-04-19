@@ -26,17 +26,17 @@ import FlowETrip from './flows/flow-e/Trip'
 import FlowEItinerary from './flows/flow-e/Itinerary'
 import FlowEConfirmation from './flows/flow-e/Confirmation'
 
-import Home from './Home'
-import HotelSelection from './HotelSelection'
-import Complete from './Complete'
+import ExplorerHome from './ExplorerHome'
+
+import FlowBudgetIndex from './flows/flow-budget/FlowBudgetIndex'
+import BudgetEntry from './flows/flow-budget/BudgetEntry'
+import BudgetRoom from './flows/flow-budget/BudgetRoom'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HotelSelection />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/complete" element={<Complete />} />
+        <Route path="/" element={<ExplorerHome />} />
 
         <Route path="/flow-a" element={<FlowAIndex />}>
           <Route index element={<Navigate to="rooms" replace />} />
@@ -79,6 +79,12 @@ export default function App() {
           <Route path="rooms" element={<FlowERooms />} />
           <Route path="itinerary" element={<FlowEItinerary />} />
           <Route path="confirmation" element={<FlowEConfirmation />} />
+        </Route>
+
+        <Route path="/flow-budget" element={<FlowBudgetIndex />}>
+          <Route index element={<Navigate to="entry" replace />} />
+          <Route path="entry" element={<BudgetEntry />} />
+          <Route path="room" element={<BudgetRoom />} />
         </Route>
       </Routes>
     </BrowserRouter>

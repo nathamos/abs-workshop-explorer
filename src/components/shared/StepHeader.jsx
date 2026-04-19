@@ -2,12 +2,14 @@ export default function StepHeader({ step, totalSteps, title, subtitle, rightCon
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-1">
-        <p
-          className="text-xs font-medium tracking-widest uppercase"
-          style={{ color: 'var(--color-text-tertiary)', letterSpacing: '0.08em' }}
-        >
-          Step {step} of {totalSteps}
-        </p>
+        {step != null && (
+          <p
+            className="text-xs font-medium tracking-widest uppercase"
+            style={{ color: 'var(--color-text-tertiary)', letterSpacing: '0.08em' }}
+          >
+            Step {step} of {totalSteps}
+          </p>
+        )}
         {rightContent && (
           <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
             {rightContent}

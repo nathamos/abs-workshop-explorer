@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { bookingContext } from '../../data/bookingContext'
+import { rooms } from '../../data/rooms'
 
 export default function FlowCIndex() {
   const navigate = useNavigate()
-  const [selectedRoom, setSelectedRoom] = useState(null)
+  const [selectedRoom, setSelectedRoom] = useState(rooms[0])
   const [selectedRoomAttributes, setSelectedRoomAttributes] = useState({})
   const [selectedBundleId, setSelectedBundleId] = useState(null)
 
