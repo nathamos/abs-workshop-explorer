@@ -29,8 +29,6 @@ import FlowEConfirmation from './flows/flow-e/Confirmation'
 import ExplorerHome from './ExplorerHome'
 
 import FlowBudgetIndex from './flows/flow-budget/FlowBudgetIndex'
-import BudgetEntry from './flows/flow-budget/BudgetEntry'
-import BudgetRoom from './flows/flow-budget/BudgetRoom'
 
 export default function App() {
   return (
@@ -81,11 +79,7 @@ export default function App() {
           <Route path="confirmation" element={<FlowEConfirmation />} />
         </Route>
 
-        <Route path="/flow-budget" element={<FlowBudgetIndex />}>
-          <Route index element={<Navigate to="entry" replace />} />
-          <Route path="entry" element={<BudgetEntry />} />
-          <Route path="room" element={<BudgetRoom />} />
-        </Route>
+        <Route path="/flow-budget" element={<FlowBudgetIndex />} />
       </Routes>
     </BrowserRouter>
   )

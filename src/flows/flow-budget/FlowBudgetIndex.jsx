@@ -1,36 +1,8 @@
-import { useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
-
-const DEFAULT_ATTRS = {
-  roomCategory: 'standard',
-  occupancy: 2,
-  bedding: ['king'],
-  pillows: 'standard',
-  floor: 'low',
-  view: 'courtyard',
-  balcony: false,
-  bathroom: 'shower',
-  livingArea: false,
-  kitchen: false,
-  laundry: false,
-  facilityAccess: 'room-only',
-  accessibility: false,
-}
+import { useNavigate } from 'react-router-dom'
+import RoomComparison from './RoomComparison'
 
 export default function FlowBudgetIndex() {
   const navigate = useNavigate()
-  const [budget, setBudget] = useState(250) // per night, SGD
-  const [budgetMode, setBudgetMode] = useState('nightly')
-  const [selectedAttributes, setSelectedAttributes] = useState(DEFAULT_ATTRS)
-
-  const flowState = {
-    budget,
-    setBudget,
-    budgetMode,
-    setBudgetMode,
-    selectedAttributes,
-    setSelectedAttributes,
-  }
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>
@@ -55,7 +27,7 @@ export default function FlowBudgetIndex() {
         </svg>
         Exit
       </button>
-      <Outlet context={flowState} />
+      <RoomComparison />
     </div>
   )
 }

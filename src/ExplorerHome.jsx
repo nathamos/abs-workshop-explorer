@@ -21,8 +21,8 @@ const roomConcepts = [
   },
   {
     id: 'budget-led',
-    title: 'Budget Led',
-    description: 'Set a budget and build your room from there — the bar fills as you add upgrades.',
+    title: 'Room Tier Comparison',
+    description: 'See all room types side by side. Compare what each includes and choose the one that fits.',
     route: '/flow-budget',
   },
 ]
