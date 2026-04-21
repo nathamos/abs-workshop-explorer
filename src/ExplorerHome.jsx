@@ -6,24 +6,28 @@ const roomConcepts = [
     title: 'Attributes As Filters',
     description: 'Set your preferences as filters. We surface the rooms that best match what you\'re looking for.',
     route: '/flow-a/rooms',
+    image: '/assets/card-attributes-as-filters.jpg',
   },
   {
     id: 'configure-attributes',
     title: 'Configure Attributes',
     description: 'Build your ideal room by combining attributes. We match you to the closest available option.',
     route: '/flow-b/rooms',
+    image: '/assets/card-configure-attributes.jpg',
   },
   {
     id: 'select-customise',
     title: 'Select & Customise Room',
     description: 'Browse room types and customise from within each card before committing.',
     route: '/flow-c/rooms',
+    image: '/assets/card-select-customise-room.jpg',
   },
   {
     id: 'budget-led',
     title: 'Room Tier Comparison',
     description: 'See all room types side by side. Compare what each includes and choose the one that fits.',
     route: '/flow-budget',
+    image: '/assets/card-room-tier-comparison.jpg',
   },
 ]
 
@@ -33,24 +37,28 @@ const serviceConcepts = [
     title: 'One Big List',
     description: 'All available services in a single scrollable list. Check off what you want.',
     route: '/flow-a/services',
+    image: '/assets/card-one-big-list.jpg',
   },
   {
     id: 'nested-pages',
     title: 'Nested Pages',
     description: 'Services organised by category. Dive into each section to explore the options.',
     route: '/flow-b/services',
+    image: '/assets/card-nested-pages.jpg',
   },
   {
     id: 'bundles',
     title: 'Bundles with Different Rates',
     description: 'Pre-curated service packages at different price points. Pick the one that fits.',
     route: '/flow-c/services',
+    image: '/assets/card-bundles.jpg',
   },
   {
     id: 'chronological',
     title: 'Chronological / Itinerary Based',
     description: 'Plan your services day by day across your stay. See your trip take shape.',
     route: '/flow-e/itinerary',
+    image: '/assets/card-chronological.jpg',
   },
 ]
 
@@ -71,20 +79,8 @@ function ConceptCard({ concept, accentColor }) {
         opacity: disabled ? 0.45 : 1,
       }}
     >
-      <div
-        style={{
-          background: 'var(--color-surface-alt)',
-          borderRadius: 'var(--radius-sm)',
-          height: 110,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 13,
-          color: 'var(--color-text-tertiary)',
-          border: '1px solid var(--color-border)',
-        }}
-      >
-        Concept Card
+      <div style={{ borderRadius: 'var(--radius-sm)', height: 110, overflow: 'hidden' }}>
+        <img src={concept.image} alt={concept.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
 
       <p style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text-primary)', margin: 0 }}>
