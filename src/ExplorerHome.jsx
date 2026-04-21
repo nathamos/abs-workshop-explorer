@@ -37,7 +37,7 @@ const serviceConcepts = [
     title: 'One Big List',
     description: 'All available services in a single scrollable list. Check off what you want.',
     route: '/flow-a/services',
-    image: '/assets/card-one-big-list.jpg',
+    image: '/assets/card-one-big-list.png',
   },
   {
     id: 'nested-pages',
@@ -58,7 +58,7 @@ const serviceConcepts = [
     title: 'Chronological / Itinerary Based',
     description: 'Plan your services day by day across your stay. See your trip take shape.',
     route: '/flow-e/itinerary',
-    image: '/assets/card-chronological.jpg',
+    image: '/assets/card-chronological.png',
   },
 ]
 
